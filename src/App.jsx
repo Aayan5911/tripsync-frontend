@@ -338,11 +338,10 @@ export default function App() {
           {/* Brand Logo in Login Box */}
           <div className="flex flex-col items-center justify-center mb-6">
             <img 
-              src="/logo.png" 
+              src="/logo.jpeg" 
               alt="TripSync" 
-              className="h-16 w-16 rounded-2xl object-cover shadow-lg shadow-cyan-500/30 border border-cyan-500/20 mb-3"
+              className="w-28 h-28 rounded-2xl object-contain shadow-lg shadow-cyan-500/20"
             />
-            <span className="text-2xl font-black tracking-tight text-white">TripSync</span>
           </div>
 
           <h2 className="text-xl font-bold text-center mb-6 text-slate-100">
@@ -433,9 +432,9 @@ export default function App() {
         <div className="w-full max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <img 
-              src="/logo.png" 
+              src="/logo.jpeg" 
               alt="TripSync" 
-              className="h-8 w-8 rounded-lg object-cover border border-cyan-500/40 shadow-sm"
+              className="h-9 w-9 rounded-lg object-contain border border-cyan-500/40 shadow-sm"
             />
             <span className="text-lg sm:text-xl font-extrabold tracking-tight bg-gradient-to-r from-cyan-400 via-indigo-200 to-purple-400 bg-clip-text text-transparent">
               TripSync India
