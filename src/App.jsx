@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Eye, EyeOff, MapPin, Sliders, CheckCircle, 
   ShieldAlert, LogOut, CheckSquare, PlusCircle, Globe, Search, Sparkles, Utensils, 
-  ShieldCheck, Car, Star, Lock, UserCheck, Hotel, Coffee, FileDown, Loader2, Footprints, Camera, BookmarkPlus, Calendar, Clock, Sun, Sunset, Moon, IndianRupee
+  ShieldCheck, Car, Star, Lock, UserCheck, Hotel, Coffee, FileDown, Loader2, Footprints, Camera, BookmarkPlus, Calendar, Clock, Sun, Sunset, Moon, IndianRupee, Mail, Phone, ArrowLeft
 } from 'lucide-react';
 
 // 🌍 Complete Dynamic Intelligence Engine
@@ -106,6 +106,13 @@ export default function App() {
   const [isAuthLoading, setIsAuthLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('planner');
 
+  // 🚀 Alternate OTP States
+  const [otpModal, setOtpModal] = useState(null); // 'email' | 'phone' | null
+  const [otpStep, setOtpStep] = useState(1); // 1 = Input, 2 = Verify OTP
+  const [otpIdentifier, setOtpIdentifier] = useState('');
+  const [enteredOtp, setEnteredOtp] = useState('');
+  const [otpLoading, setOtpLoading] = useState(false);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRegion, setSelectedRegion] = useState('All');
   const [isSearchingOnline, setIsSearchingOnline] = useState(false);
@@ -208,6 +215,82 @@ export default function App() {
       setToken('tripsync-live-token');
     } finally {
       setIsAuthLoading(false);
+    }
+  };
+
+  // 🚀 Handlers for Passwordless OTP (Email / Phone)
+  const handleSendOtp = async () => {
+    const identifier = otpIdentifier.trim();
+    if (!identifier) {
+      alert(`Please enter your registered ${otpModal === 'email' ? 'Email' : 'Phone Number'}.`);
+      return;
+    }
+    setOtpLoading(true);
+    try {
+      const endpoint = otpModal === 'email' 
+        ? 'https://web-production-79148.up.railway.app/api/auth/send-email-otp/' 
+        : 'https://web-production-79148.up.railway.app/api/auth/send-phone-otp/';
+      
+      const payload = otpModal === 'email' ? { email: identifier } : { phone: identifier };
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        alert(data.message || 'OTP has been dispatched successfully!');
+        setOtpStep(2);
+      } else {
+        alert(data.error || 'Failed to send OTP. Please verify details.');
+      }
+    } catch (err) {
+      alert('Connection error: ' + err.message);
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    const code = enteredOtp.trim();
+    if (!code) {
+      alert('Please enter the 6-digit OTP code.');
+      return;
+    }
+    setOtpLoading(true);
+    try {
+      const endpoint = otpModal === 'email' 
+        ? 'https://web-production-79148.up.railway.app/api/auth/verify-email-otp/' 
+        : 'https://web-production-79148.up.railway.app/api/auth/verify-phone-otp/';
+      
+      const payload = otpModal === 'email' 
+        ? { email: otpIdentifier.trim(), otp: code } 
+        : { phone: otpIdentifier.trim(), otp: code };
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        localStorage.setItem('access_token', data.token || 'tripsync-live-token');
+        localStorage.setItem('current_username', data.username);
+        setCurrentUser(data.username);
+        setToken(data.token || 'tripsync-live-token');
+        setOtpModal(null);
+        setOtpStep(1);
+        alert(`Welcome back, ${data.username}! Logged in successfully.`);
+      } else {
+        alert(data.error || 'Invalid or expired OTP.');
+      }
+    } catch (err) {
+      alert('Verification error: ' + err.message);
+    } finally {
+      setOtpLoading(false);
     }
   };
 
@@ -333,7 +416,7 @@ export default function App() {
 
   if (!token) {
     return (
-      <div className="min-h-screen bg-[#070B14] flex items-center justify-center p-4 text-slate-100 font-sans">
+      <div className="min-h-screen bg-[#070B14] flex items-center justify-center p-4 text-slate-100 font-sans relative">
         <div className="w-full max-w-md bg-[#0F172A] border border-slate-700/80 p-6 sm:p-8 rounded-3xl shadow-2xl">
           {/* Brand Logo in Login Box */}
           <div className="flex flex-col items-center justify-center mb-6">
@@ -412,7 +495,45 @@ export default function App() {
             </button>
           </form>
 
-          <div className="text-center mt-6">
+          {/* 🚀 Alternate Passwordless Sign-In Modes */}
+          {authMode === 'login' && (
+            <div className="mt-5">
+              <div className="flex items-center my-3.5">
+                <div className="flex-1 border-t border-slate-700/80"></div>
+                <span className="px-3 text-[11px] text-slate-400 font-bold tracking-wider uppercase">Or sign in with</span>
+                <div className="flex-1 border-t border-slate-700/80"></div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOtpModal('email');
+                    setOtpStep(1);
+                    setOtpIdentifier('');
+                    setEnteredOtp('');
+                  }}
+                  className="flex items-center justify-center gap-2 py-2.5 px-3 text-xs bg-slate-800/90 hover:bg-slate-700 border border-slate-700 rounded-xl text-slate-200 transition font-semibold"
+                >
+                  <Mail className="h-3.5 w-3.5 text-cyan-400" /> Email OTP
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOtpModal('phone');
+                    setOtpStep(1);
+                    setOtpIdentifier('');
+                    setEnteredOtp('');
+                  }}
+                  className="flex items-center justify-center gap-2 py-2.5 px-3 text-xs bg-slate-800/90 hover:bg-slate-700 border border-slate-700 rounded-xl text-slate-200 transition font-semibold"
+                >
+                  <Phone className="h-3.5 w-3.5 text-indigo-400" /> Phone OTP
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className="text-center mt-5">
             <button
               onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')}
               className="text-xs font-semibold text-cyan-400 hover:underline"
@@ -421,6 +542,86 @@ export default function App() {
             </button>
           </div>
         </div>
+
+        {/* 🚀 Interactive OTP Verification Modal */}
+        {otpModal && (
+          <div className="fixed inset-0 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+            <div className="bg-[#0F172A] border border-slate-700 rounded-3xl p-6 sm:p-7 w-full max-w-sm shadow-2xl space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-cyan-400 font-bold text-sm">
+                  {otpModal === 'email' ? <Mail className="h-4 w-4" /> : <Phone className="h-4 w-4" />}
+                  <span>{otpModal === 'email' ? 'Email OTP Sign-In' : 'Phone OTP Sign-In'}</span>
+                </div>
+                <button 
+                  onClick={() => setOtpModal(null)} 
+                  className="text-slate-400 hover:text-white text-xs font-bold px-2 py-1 bg-slate-800 rounded-lg"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <p className="text-xs text-slate-400">
+                {otpStep === 1 
+                  ? `Enter your registered ${otpModal === 'email' ? 'email' : 'phone number'}. We'll send a 6-digit code.` 
+                  : `Enter the 6-digit verification code sent to your registered ${otpModal}.`}
+              </p>
+
+              {otpStep === 1 ? (
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-[11px] text-slate-300 font-bold uppercase">
+                      Registered {otpModal === 'email' ? 'Email Address' : 'Phone Number'}
+                    </label>
+                    <input
+                      type={otpModal === 'email' ? 'email' : 'tel'}
+                      placeholder={otpModal === 'email' ? 'e.g. name@example.com' : 'e.g. 9876543210'}
+                      value={otpIdentifier}
+                      onChange={(e) => setOtpIdentifier(e.target.value)}
+                      className="w-full mt-1 bg-[#070B14] border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400"
+                    />
+                  </div>
+                  <button
+                    onClick={handleSendOtp}
+                    disabled={otpLoading}
+                    className="w-full py-3 bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-lg disabled:opacity-60"
+                  >
+                    {otpLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                    Send Verification Code
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-[11px] text-slate-300 font-bold uppercase">Enter 6-Digit Code</label>
+                    <input
+                      type="text"
+                      maxLength={6}
+                      placeholder="• • • • • •"
+                      value={enteredOtp}
+                      onChange={(e) => setEnteredOtp(e.target.value)}
+                      className="w-full mt-1 text-center tracking-[0.4em] font-mono text-lg bg-[#070B14] border border-cyan-500/60 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-400"
+                    />
+                  </div>
+                  <button
+                    onClick={handleVerifyOtp}
+                    disabled={otpLoading}
+                    className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-lg disabled:opacity-60"
+                  >
+                    {otpLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                    Verify & Sign In →
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setOtpStep(1)}
+                    className="w-full text-center text-xs text-slate-400 hover:text-cyan-400 font-medium py-1"
+                  >
+                    ← Change {otpModal === 'email' ? 'Email' : 'Phone'}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
