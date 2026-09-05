@@ -180,13 +180,16 @@ export default function App() {
 
     setIsAuthLoading(true);
     const endpoint = authMode === 'register' 
-      ? 'https://web-production-79148.up.railway.app/api/auth/register/'
+      ? 'https://web-production-79148.up.railway.app/api/auth/register/' 
       : 'https://web-production-79148.up.railway.app/api/auth/login/';
 
     try {
       const res = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify({
           username: uname,
           password: authData.password,
@@ -195,7 +198,7 @@ export default function App() {
         })
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
       if (res.ok) {
         localStorage.setItem('access_token', data.access || 'tripsync-live-token');
@@ -206,7 +209,7 @@ export default function App() {
           alert(`Account created successfully for ${uname}! Details saved in Django database.`);
         }
       } else {
-        alert(data.error || 'Authentication error. Please verify your credentials.');
+        alert(data.error || data.detail || 'Authentication error. Please verify your credentials.');
       }
     } catch (err) {
       localStorage.setItem('access_token', 'tripsync-live-token');
@@ -235,19 +238,27 @@ export default function App() {
 
       const res = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify(payload)
       });
-      const data = await res.json();
+      
+      const data = await res.json().catch(() => ({}));
 
       if (res.ok) {
         alert(data.message || 'OTP has been dispatched successfully!');
+        if (data.test_otp) {
+          setEnteredOtp(data.test_otp);
+        }
         setOtpStep(2);
       } else {
-        alert(data.error || 'Failed to send OTP. Please verify details.');
+        alert(data.error || data.detail || 'Failed to send OTP. Please verify details.');
       }
     } catch (err) {
-      alert('Connection error: ' + err.message);
+      console.error("Fetch failed:", err);
+      alert('Connection error: ' + (err.message || 'Failed to connect to server'));
     } finally {
       setOtpLoading(false);
     }
@@ -271,24 +282,29 @@ export default function App() {
 
       const res = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify(payload)
       });
-      const data = await res.json();
+      
+      const data = await res.json().catch(() => ({}));
 
       if (res.ok) {
         localStorage.setItem('access_token', data.token || 'tripsync-live-token');
-        localStorage.setItem('current_username', data.username);
-        setCurrentUser(data.username);
+        localStorage.setItem('current_username', data.username || 'User');
+        setCurrentUser(data.username || 'User');
         setToken(data.token || 'tripsync-live-token');
         setOtpModal(null);
         setOtpStep(1);
-        alert(`Welcome back, ${data.username}! Logged in successfully.`);
+        alert(`Welcome back, ${data.username || 'User'}! Logged in successfully.`);
       } else {
-        alert(data.error || 'Invalid or expired OTP.');
+        alert(data.error || data.detail || 'Invalid or expired OTP.');
       }
     } catch (err) {
-      alert('Verification error: ' + err.message);
+      console.error("Verify failed:", err);
+      alert('Verification error: ' + (err.message || 'Could not verify code'));
     } finally {
       setOtpLoading(false);
     }
