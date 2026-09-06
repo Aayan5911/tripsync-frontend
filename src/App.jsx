@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Eye, EyeOff, MapPin, Sliders, CheckCircle, 
   ShieldAlert, LogOut, CheckSquare, PlusCircle, Globe, Search, Sparkles, Utensils, 
-  ShieldCheck, Car, Star, Lock, UserCheck, Hotel, Coffee, FileDown, Loader2, Footprints, Camera, BookmarkPlus, Calendar, Clock, Sun, Sunset, Moon, IndianRupee, Mail, ArrowLeft
+  ShieldCheck, Car, Star, Lock, UserCheck, Hotel, Coffee, FileDown, Loader2, Footprints, Camera, BookmarkPlus, Calendar, Clock, Sun, Sunset, Moon, IndianRupee, Mail, ArrowLeft, KeyRound
 } from 'lucide-react';
 
 // 🌍 Complete Dynamic Intelligence Engine
@@ -108,10 +108,19 @@ export default function App() {
 
   // 🚀 Pure Email OTP States
   const [showOtpModal, setShowOtpModal] = useState(false);
-  const [otpStep, setOtpStep] = useState(1); // 1 = Enter Email, 2 = Enter Code
+  const [otpStep, setOtpStep] = useState(1);
   const [otpEmail, setOtpEmail] = useState('');
   const [enteredOtp, setEnteredOtp] = useState('');
   const [otpLoading, setOtpLoading] = useState(false);
+
+  // 🔑 Forgot Password States
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [forgotStep, setForgotStep] = useState(1); // 1 = enter username, 2 = enter OTP + new pass
+  const [forgotUsername, setForgotUsername] = useState('');
+  const [forgotMaskedEmail, setForgotMaskedEmail] = useState('');
+  const [forgotOtp, setForgotOtp] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRegion, setSelectedRegion] = useState('All');
@@ -220,7 +229,6 @@ export default function App() {
     }
   };
 
-  // 🚀 Handlers for Free Permanent Email OTP
   const handleSendEmailOtp = async () => {
     const email = otpEmail.trim();
     if (!email) {
@@ -231,13 +239,9 @@ export default function App() {
     try {
       const res = await fetch('https://web-production-79148.up.railway.app/api/auth/send-email-otp/', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({ email })
       });
-      
       const data = await res.json().catch(() => ({}));
 
       if (res.ok) {
@@ -248,7 +252,6 @@ export default function App() {
         alert(data.error || data.detail || 'Failed to send OTP. Please verify email.');
       }
     } catch (err) {
-      console.error("Fetch failed:", err);
       alert('Connection error: ' + (err.message || 'Failed to connect to server'));
     } finally {
       setOtpLoading(false);
@@ -265,13 +268,9 @@ export default function App() {
     try {
       const res = await fetch('https://web-production-79148.up.railway.app/api/auth/verify-email-otp/', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({ email: otpEmail.trim(), otp: code })
       });
-      
       const data = await res.json().catch(() => ({}));
 
       if (res.ok) {
@@ -286,10 +285,74 @@ export default function App() {
         alert(data.error || data.detail || 'Invalid or expired code.');
       }
     } catch (err) {
-      console.error("Verify failed:", err);
       alert('Verification error: ' + (err.message || 'Could not verify code'));
     } finally {
       setOtpLoading(false);
+    }
+  };
+
+  // 🔑 Forgot Password Handlers
+  const handleForgotRequest = async () => {
+    const uname = forgotUsername.trim();
+    if (!uname) {
+      alert('Please enter your username.');
+      return;
+    }
+    setForgotLoading(true);
+    try {
+      const res = await fetch('https://web-production-79148.up.railway.app/api/auth/forgot-password-request/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ username: uname })
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok) {
+        alert(data.message || 'Reset code sent to your registered email!');
+        setForgotMaskedEmail(data.masked_email || '');
+        setForgotStep(2);
+      } else {
+        alert(data.error || 'Username not found or no email linked.');
+      }
+    } catch (err) {
+      alert('Connection error: ' + err.message);
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
+  const handleForgotConfirm = async () => {
+    if (!forgotOtp.trim() || !newPassword.trim()) {
+      alert('Please enter the 6-digit code and your new password.');
+      return;
+    }
+    setForgotLoading(true);
+    try {
+      const res = await fetch('https://web-production-79148.up.railway.app/api/auth/reset-password-confirm/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          username: forgotUsername.trim(),
+          otp: forgotOtp.trim(),
+          new_password: newPassword.trim()
+        })
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok) {
+        alert(data.message || 'Password changed successfully! You can now log in.');
+        setShowForgotModal(false);
+        setForgotStep(1);
+        setForgotUsername('');
+        setForgotOtp('');
+        setNewPassword('');
+      } else {
+        alert(data.error || 'Invalid or expired OTP code.');
+      }
+    } catch (err) {
+      alert('Connection error: ' + err.message);
+    } finally {
+      setForgotLoading(false);
     }
   };
 
@@ -404,7 +467,6 @@ export default function App() {
   const totalSpent = expenses.reduce((sum, item) => sum + Number(item.amount), 0);
   const perPersonExpense = (totalSpent / (tripData.groupSize || 1)).toFixed(0);
 
-  // Generate day-by-day itinerary
   const itineraryDays = Array.from({ length: tripData.days || 3 }, (_, i) => ({
     day: i + 1,
     title: `Day ${i + 1}: ${i === 0 ? 'Arrival & Orientation' : i === tripData.days - 1 ? 'Souvenirs & Departure' : 'Core Exploration & Adventure'}`,
@@ -417,7 +479,6 @@ export default function App() {
     return (
       <div className="min-h-screen bg-[#070B14] flex items-center justify-center p-4 text-slate-100 font-sans relative">
         <div className="w-full max-w-md bg-[#0F172A] border border-slate-700/80 p-6 sm:p-8 rounded-3xl shadow-2xl">
-          {/* Brand Logo in Login Box */}
           <div className="flex flex-col items-center justify-center mb-6">
             <img 
               src="/logo.jpeg" 
@@ -454,7 +515,24 @@ export default function App() {
             )}
 
             <div>
-              <label className="text-xs text-slate-300 font-bold uppercase">Password *</label>
+              <div className="flex justify-between items-center">
+                <label className="text-xs text-slate-300 font-bold uppercase">Password *</label>
+                {authMode === 'login' && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowForgotModal(true);
+                      setForgotStep(1);
+                      setForgotUsername(authData.username || '');
+                      setForgotOtp('');
+                      setNewPassword('');
+                    }}
+                    className="text-[11px] text-cyan-400 hover:underline font-semibold"
+                  >
+                    Forgot password?
+                  </button>
+                )}
+              </div>
               <div className="relative mt-1.5">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -483,7 +561,6 @@ export default function App() {
             </button>
           </form>
 
-          {/* 🚀 Clean Email Sign-In Trigger */}
           {authMode === 'login' && (
             <div className="mt-5">
               <div className="flex items-center my-3.5">
@@ -517,7 +594,7 @@ export default function App() {
           </div>
         </div>
 
-        {/* 🚀 Email OTP Modal */}
+        {/* 🚀 Email OTP Sign-In Modal */}
         {showOtpModal && (
           <div className="fixed inset-0 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
             <div className="bg-[#0F172A] border border-slate-700 rounded-3xl p-6 sm:p-7 w-full max-w-sm shadow-2xl space-y-4">
@@ -594,13 +671,100 @@ export default function App() {
             </div>
           </div>
         )}
+
+        {/* 🔑 Forgot Password Modal */}
+        {showForgotModal && (
+          <div className="fixed inset-0 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+            <div className="bg-[#0F172A] border border-slate-700 rounded-3xl p-6 sm:p-7 w-full max-w-sm shadow-2xl space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-cyan-400 font-bold text-sm">
+                  <KeyRound className="h-4 w-4" />
+                  <span>Reset Password</span>
+                </div>
+                <button 
+                  onClick={() => setShowForgotModal(false)} 
+                  className="text-slate-400 hover:text-white text-xs font-bold px-2 py-1 bg-slate-800 rounded-lg"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {forgotStep === 1 ? (
+                <div className="space-y-3">
+                  <p className="text-xs text-slate-400">
+                    Enter your <strong>Username</strong>. We'll find your registered email and send a 6-digit reset code.
+                  </p>
+                  <div>
+                    <label className="text-[11px] text-slate-300 font-bold uppercase">Username</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Aayan"
+                      value={forgotUsername}
+                      onChange={(e) => setForgotUsername(e.target.value)}
+                      className="w-full mt-1 bg-[#070B14] border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400"
+                    />
+                  </div>
+                  <button
+                    onClick={handleForgotRequest}
+                    disabled={forgotLoading}
+                    className="w-full py-3 bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-lg disabled:opacity-60"
+                  >
+                    {forgotLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                    Send Reset Code
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-xs text-slate-400">
+                    Code sent to <strong className="text-cyan-400">{forgotMaskedEmail}</strong>. Enter code & your new password:
+                  </p>
+                  <div>
+                    <label className="text-[11px] text-slate-300 font-bold uppercase">6-Digit Code</label>
+                    <input
+                      type="text"
+                      maxLength={6}
+                      placeholder="• • • • • •"
+                      value={forgotOtp}
+                      onChange={(e) => setForgotOtp(e.target.value)}
+                      className="w-full mt-1 text-center tracking-[0.4em] font-mono text-lg bg-[#070B14] border border-cyan-500/60 rounded-xl px-3.5 py-2 text-white focus:outline-none focus:border-cyan-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-slate-300 font-bold uppercase">New Password</label>
+                    <input
+                      type="password"
+                      placeholder="Enter new password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="w-full mt-1 bg-[#070B14] border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400"
+                    />
+                  </div>
+                  <button
+                    onClick={handleForgotConfirm}
+                    disabled={forgotLoading}
+                    className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-lg disabled:opacity-60"
+                  >
+                    {forgotLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                    Update Password & Save
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setForgotStep(1)}
+                    className="w-full text-center text-xs text-slate-400 hover:text-cyan-400 font-medium py-1"
+                  >
+                    ← Change Username
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-[#070B14] text-slate-100 font-sans antialiased w-full overflow-x-hidden">
-      {/* App Header with Logo */}
       <header className="border-b border-slate-800/80 bg-[#0E1526]/95 backdrop-blur-md sticky top-0 z-50">
         <div className="w-full max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -624,7 +788,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* Navigation Tabs */}
         <div className="w-full overflow-x-auto scrollbar-none px-4 py-2 border-t border-slate-800/50 flex items-center gap-2">
           {[
             { id: 'explore', label: 'Explore 🇮🇳' },
@@ -651,10 +814,7 @@ export default function App() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-5 sm:py-8 space-y-6">
-        
-        {/* Explore Section */}
         {activeTab === 'explore' && (
           <div className="space-y-5">
             <div className="bg-[#0F172A] border border-slate-700/60 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-xl space-y-4">
@@ -762,7 +922,6 @@ export default function App() {
           </div>
         )}
 
-        {/* Planner Section */}
         {activeTab === 'planner' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
             <div className="bg-[#0F172A] border border-slate-700/60 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-xl space-y-4">
@@ -883,7 +1042,6 @@ export default function App() {
           </div>
         )}
 
-        {/* Intelligent Dynamic Itinerary Section */}
         {activeTab === 'itinerary' && (
           <div className="space-y-6">
             <div className="bg-[#0F172A] border border-slate-700/60 p-5 sm:p-6 rounded-2xl sm:rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
@@ -919,7 +1077,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Sights, Treks & Food */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
               <div className="bg-[#0F172A] border border-cyan-500/40 p-5 rounded-3xl shadow-xl space-y-3">
                 <div className="flex items-center gap-2 text-cyan-400 font-bold text-sm">
@@ -964,7 +1121,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Day-by-Day Timeline Schedule */}
             <div className="space-y-4">
               <h2 className="text-lg font-bold text-white flex items-center gap-2">
                 <Calendar className="h-5 w-5 text-cyan-400" /> Day-by-Day Detailed Schedule
@@ -995,7 +1151,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Budget Breakdown Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-6">
               <div className="bg-cyan-950/30 border border-cyan-500/30 p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow">
                 <div className="text-cyan-400 font-bold text-xs uppercase">Sightseeing Budget</div>
@@ -1013,7 +1168,6 @@ export default function App() {
           </div>
         )}
 
-        {/* 🏨 Destination-Aware Hotels & Cafes Section */}
         {activeTab === 'hotels' && (
           <div className="space-y-5">
             <div className="bg-[#0F172A] border border-slate-700/60 p-5 rounded-2xl shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
@@ -1062,7 +1216,6 @@ export default function App() {
           </div>
         )}
 
-        {/* 🚙 Destination-Aware Vehicles Section */}
         {activeTab === 'vehicles' && (
           <div className="space-y-5">
             <div className="bg-[#0F172A] border border-slate-700/60 p-5 rounded-2xl shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
@@ -1101,7 +1254,6 @@ export default function App() {
           </div>
         )}
 
-        {/* 🚨 Destination-Aware Safety Section */}
         {activeTab === 'safety' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             <div className="bg-rose-950/20 border border-rose-900/50 p-5 sm:p-6 rounded-2xl shadow-xl flex flex-col justify-between space-y-4">
@@ -1148,7 +1300,6 @@ export default function App() {
           </div>
         )}
 
-        {/* Expenses Section */}
         {activeTab === 'expenses' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
             <div className="bg-[#0F172A] border border-slate-700/60 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-xl">
@@ -1219,7 +1370,6 @@ export default function App() {
           </div>
         )}
 
-        {/* Real Dynamic Profile Section */}
         {activeTab === 'profile' && (
           <div className="space-y-5">
             <div className="bg-[#0F172A] border border-slate-800 rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -1324,7 +1474,6 @@ export default function App() {
             </div>
           </div>
         )}
-
       </main>
     </div>
   );
