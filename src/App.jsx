@@ -113,10 +113,10 @@ export default function App() {
   const [enteredOtp, setEnteredOtp] = useState('');
   const [otpLoading, setOtpLoading] = useState(false);
 
-  // 🔑 Forgot Password States
+  // 🔑 Forgot Password States (Username or Email)
   const [showForgotModal, setShowForgotModal] = useState(false);
-  const [forgotStep, setForgotStep] = useState(1); // 1 = enter username, 2 = enter OTP + new pass
-  const [forgotUsername, setForgotUsername] = useState('');
+  const [forgotStep, setForgotStep] = useState(1);
+  const [forgotIdentifier, setForgotIdentifier] = useState('');
   const [forgotMaskedEmail, setForgotMaskedEmail] = useState('');
   const [forgotOtp, setForgotOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -196,8 +196,8 @@ export default function App() {
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Content-Type': 'application/json', 
+          'Accept': 'application/json' 
         },
         body: JSON.stringify({
           username: uname,
@@ -291,11 +291,11 @@ export default function App() {
     }
   };
 
-  // 🔑 Forgot Password Handlers
+  // 🔑 Forgot Password Handlers (Accepts Username or Email)
   const handleForgotRequest = async () => {
-    const uname = forgotUsername.trim();
-    if (!uname) {
-      alert('Please enter your username.');
+    const identifier = forgotIdentifier.trim();
+    if (!identifier) {
+      alert('Please enter your registered Username or Email address.');
       return;
     }
     setForgotLoading(true);
@@ -303,7 +303,7 @@ export default function App() {
       const res = await fetch('https://web-production-79148.up.railway.app/api/auth/forgot-password-request/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({ username: uname })
+        body: JSON.stringify({ identifier, username: identifier })
       });
       const data = await res.json().catch(() => ({}));
 
@@ -312,7 +312,7 @@ export default function App() {
         setForgotMaskedEmail(data.masked_email || '');
         setForgotStep(2);
       } else {
-        alert(data.error || 'Username not found or no email linked.');
+        alert(data.error || 'Account not found with this username or email.');
       }
     } catch (err) {
       alert('Connection error: ' + err.message);
@@ -332,7 +332,8 @@ export default function App() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({
-          username: forgotUsername.trim(),
+          identifier: forgotIdentifier.trim(),
+          username: forgotIdentifier.trim(),
           otp: forgotOtp.trim(),
           new_password: newPassword.trim()
         })
@@ -343,7 +344,7 @@ export default function App() {
         alert(data.message || 'Password changed successfully! You can now log in.');
         setShowForgotModal(false);
         setForgotStep(1);
-        setForgotUsername('');
+        setForgotIdentifier('');
         setForgotOtp('');
         setNewPassword('');
       } else {
@@ -523,7 +524,7 @@ export default function App() {
                     onClick={() => {
                       setShowForgotModal(true);
                       setForgotStep(1);
-                      setForgotUsername(authData.username || '');
+                      setForgotIdentifier(authData.username || '');
                       setForgotOtp('');
                       setNewPassword('');
                     }}
@@ -672,7 +673,7 @@ export default function App() {
           </div>
         )}
 
-        {/* 🔑 Forgot Password Modal */}
+        {/* 🔑 Forgot Password Modal (Username or Email Address) */}
         {showForgotModal && (
           <div className="fixed inset-0 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
             <div className="bg-[#0F172A] border border-slate-700 rounded-3xl p-6 sm:p-7 w-full max-w-sm shadow-2xl space-y-4">
@@ -692,15 +693,15 @@ export default function App() {
               {forgotStep === 1 ? (
                 <div className="space-y-3">
                   <p className="text-xs text-slate-400">
-                    Enter your <strong>Username</strong>. We'll find your registered email and send a 6-digit reset code.
+                    Enter your registered <strong>Username</strong> or <strong>Email address</strong>. We'll send a 6-digit reset code.
                   </p>
                   <div>
-                    <label className="text-[11px] text-slate-300 font-bold uppercase">Username</label>
+                    <label className="text-[11px] text-slate-300 font-bold uppercase tracking-wider">Username or Email Address</label>
                     <input
                       type="text"
-                      placeholder="e.g. Aayan"
-                      value={forgotUsername}
-                      onChange={(e) => setForgotUsername(e.target.value)}
+                      placeholder="e.g. Aayan or name@example.com"
+                      value={forgotIdentifier}
+                      onChange={(e) => setForgotIdentifier(e.target.value)}
                       className="w-full mt-1 bg-[#070B14] border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400"
                     />
                   </div>
@@ -752,7 +753,7 @@ export default function App() {
                     onClick={() => setForgotStep(1)}
                     className="w-full text-center text-xs text-slate-400 hover:text-cyan-400 font-medium py-1"
                   >
-                    ← Change Username
+                    ← Change Username / Email
                   </button>
                 </div>
               )}
