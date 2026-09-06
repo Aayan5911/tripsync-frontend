@@ -483,7 +483,7 @@ export default function App() {
             </button>
           </form>
 
-          {/* 🚀 Clean Email OTP Trigger */}
+          {/* 🚀 Clean Email Sign-In Trigger */}
           {authMode === 'login' && (
             <div className="mt-5">
               <div className="flex items-center my-3.5">
@@ -502,7 +502,7 @@ export default function App() {
                 }}
                 className="w-full flex items-center justify-center gap-2 py-3 px-4 text-xs bg-slate-800/90 hover:bg-slate-700 border border-slate-700 rounded-xl text-slate-200 transition font-bold"
               >
-                <Mail className="h-4 w-4 text-cyan-400" /> Sign In via Email OTP (Permanent Free)
+                <Mail className="h-4 w-4 text-cyan-400" /> Sign In via Email
               </button>
             </div>
           )}
@@ -517,14 +517,14 @@ export default function App() {
           </div>
         </div>
 
-        {/* 🚀 Permanent Email OTP Modal */}
+        {/* 🚀 Email OTP Modal */}
         {showOtpModal && (
           <div className="fixed inset-0 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
             <div className="bg-[#0F172A] border border-slate-700 rounded-3xl p-6 sm:p-7 w-full max-w-sm shadow-2xl space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-cyan-400 font-bold text-sm">
                   <Mail className="h-4 w-4" />
-                  <span>Email OTP Sign-In</span>
+                  <span>Email Sign-In</span>
                 </div>
                 <button 
                   onClick={() => setShowOtpModal(false)} 
