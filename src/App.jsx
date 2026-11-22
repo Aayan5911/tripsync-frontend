@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 
 // App Version for Automatic Mobile/Browser Cache Refresh
-const APP_VERSION = '2.0.0';
+const APP_VERSION = '2.0.1';
 
 // Dynamic Intelligence Engine
 const getDestinationIntelligence = (destName) => {
@@ -214,8 +214,8 @@ export default function App() {
 
     setIsAuthLoading(true);
     const endpoint = authMode === 'register' 
-      ? 'https://web-production-79148.up.railway.app/api/auth/register/' 
-      : 'https://web-production-79148.up.railway.app/api/auth/login/';
+      ? 'https://aayan.pythonanywhere.com/api/auth/register/' 
+      : 'https://aayan.pythonanywhere.com/api/auth/login/';
 
     try {
       const res = await fetch(endpoint, {
@@ -262,7 +262,7 @@ export default function App() {
     }
     setOtpLoading(true);
     try {
-      const res = await fetch('https://web-production-79148.up.railway.app/api/auth/send-email-otp/', {
+      const res = await fetch('https://aayan.pythonanywhere.com/api/auth/send-email-otp/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({ email })
@@ -291,7 +291,7 @@ export default function App() {
     }
     setOtpLoading(true);
     try {
-      const res = await fetch('https://web-production-79148.up.railway.app/api/auth/verify-email-otp/', {
+      const res = await fetch('https://aayan.pythonanywhere.com/api/auth/verify-email-otp/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({ email: otpEmail.trim(), otp: code })
@@ -323,7 +323,7 @@ export default function App() {
     }
     setForgotLoading(true);
     try {
-      const res = await fetch('https://web-production-79148.up.railway.app/api/auth/forgot-password-request/', {
+      const res = await fetch('https://aayan.pythonanywhere.com/api/auth/forgot-password-request/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({ identifier, username: identifier })
@@ -351,7 +351,7 @@ export default function App() {
     }
     setForgotLoading(true);
     try {
-      const res = await fetch('https://web-production-79148.up.railway.app/api/auth/reset-password-confirm/', {
+      const res = await fetch('https://aayan.pythonanywhere.com/api/auth/reset-password-confirm/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({
