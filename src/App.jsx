@@ -5,6 +5,9 @@ import {
   ShieldCheck, Car, Star, Lock, UserCheck, Hotel, Coffee, FileDown, Loader2, Footprints, Camera, BookmarkPlus, Calendar, Clock, Sun, Sunset, Moon, IndianRupee, Mail, ArrowLeft, KeyRound, ArrowUpDown, User
 } from 'lucide-react';
 
+// App Version for Automatic Mobile/Browser Cache Refresh
+const APP_VERSION = '2.0.0';
+
 // Dynamic Intelligence Engine
 const getDestinationIntelligence = (destName) => {
   const name = destName || 'Manali & Kasol, Himachal Pradesh';
@@ -98,6 +101,28 @@ const getDestinationIntelligence = (destName) => {
 };
 
 export default function App() {
+  // Automatic Version Detection & Silent Refresh (Preserves Login & Saved Trips)
+  useEffect(() => {
+    const checkVersionAndRefresh = () => {
+      const savedVersion = localStorage.getItem('tripsync_app_version');
+      if (savedVersion !== APP_VERSION) {
+        localStorage.setItem('tripsync_app_version', APP_VERSION);
+        if (savedVersion) {
+          window.location.reload();
+        }
+      }
+    };
+
+    checkVersionAndRefresh();
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        checkVersionAndRefresh();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, []);
+
   const [token, setToken] = useState(localStorage.getItem('access_token') || null);
   const [currentUser, setCurrentUser] = useState(localStorage.getItem('current_username') || 'Aayan');
   const [authMode, setAuthMode] = useState('login');
