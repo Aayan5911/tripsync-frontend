@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { 
   Eye, EyeOff, MapPin, Sliders, CheckCircle, 
   ShieldAlert, LogOut, CheckSquare, PlusCircle, Globe, Search, Sparkles, Utensils, 
-  ShieldCheck, Car, Star, Lock, UserCheck, Hotel, Coffee, FileDown, Loader2, Footprints, Camera, BookmarkPlus, Calendar, Clock, Sun, Sunset, Moon, IndianRupee, Mail, ArrowLeft, KeyRound
+  ShieldCheck, Car, Star, Lock, UserCheck, Hotel, Coffee, FileDown, Loader2, Footprints, Camera, BookmarkPlus, Calendar, Clock, Sun, Sunset, Moon, IndianRupee, Mail, ArrowLeft, KeyRound, ArrowUpDown, User
 } from 'lucide-react';
 
-// 🌍 Complete Dynamic Intelligence Engine
+// Dynamic Intelligence Engine
 const getDestinationIntelligence = (destName) => {
   const name = destName || 'Manali & Kasol, Himachal Pradesh';
   const cleanName = name.split(',')[0].trim();
@@ -106,14 +106,14 @@ export default function App() {
   const [isAuthLoading, setIsAuthLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('planner');
 
-  // 🚀 Pure Email OTP States
+  // Pure Email OTP States
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [otpStep, setOtpStep] = useState(1);
   const [otpEmail, setOtpEmail] = useState('');
   const [enteredOtp, setEnteredOtp] = useState('');
   const [otpLoading, setOtpLoading] = useState(false);
 
-  // 🔑 Forgot Password States (Username or Email)
+  // Forgot Password States
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [forgotStep, setForgotStep] = useState(1);
   const [forgotIdentifier, setForgotIdentifier] = useState('');
@@ -214,10 +214,10 @@ export default function App() {
         setCurrentUser(uname);
         setToken(data.access || 'tripsync-live-token');
         if (authMode === 'register') {
-          alert(`Account created successfully for ${uname}! Details saved in database.`);
+          alert(`Account created successfully for ${uname}!`);
         }
       } else {
-        alert(data.error || data.detail || 'Authentication error. Please verify your credentials.');
+        alert(data.error || data.detail || 'Authentication error.');
       }
     } catch (err) {
       localStorage.setItem('access_token', 'tripsync-live-token');
@@ -245,14 +245,14 @@ export default function App() {
       const data = await res.json().catch(() => ({}));
 
       if (res.ok) {
-        alert(data.message || `Verification code sent to ${email}. Check your inbox!`);
+        alert(data.message || `Verification code sent to ${email}`);
         setEnteredOtp('');
         setOtpStep(2);
       } else {
-        alert(data.error || data.detail || 'Failed to send OTP. Please verify email.');
+        alert(data.error || data.detail || 'Failed to send OTP.');
       }
     } catch (err) {
-      alert('Connection error: ' + (err.message || 'Failed to connect to server'));
+      alert('Connection error');
     } finally {
       setOtpLoading(false);
     }
@@ -261,7 +261,7 @@ export default function App() {
   const handleVerifyEmailOtp = async () => {
     const code = enteredOtp.trim();
     if (!code) {
-      alert('Please enter the 6-digit code received in your email.');
+      alert('Please enter the 6-digit code.');
       return;
     }
     setOtpLoading(true);
@@ -280,22 +280,20 @@ export default function App() {
         setToken(data.token || 'tripsync-live-token');
         setShowOtpModal(false);
         setOtpStep(1);
-        alert(`Welcome, ${data.username || 'User'}! Successfully verified.`);
       } else {
-        alert(data.error || data.detail || 'Invalid or expired code.');
+        alert(data.error || 'Invalid code.');
       }
     } catch (err) {
-      alert('Verification error: ' + (err.message || 'Could not verify code'));
+      alert('Verification error');
     } finally {
       setOtpLoading(false);
     }
   };
 
-  // 🔑 Forgot Password Handlers (Accepts Username or Email)
   const handleForgotRequest = async () => {
     const identifier = forgotIdentifier.trim();
     if (!identifier) {
-      alert('Please enter your registered Username or Email address.');
+      alert('Please enter your registered Username or Email.');
       return;
     }
     setForgotLoading(true);
@@ -312,10 +310,10 @@ export default function App() {
         setForgotMaskedEmail(data.masked_email || '');
         setForgotStep(2);
       } else {
-        alert(data.error || 'Account not found with this username or email.');
+        alert(data.error || 'Account not found.');
       }
     } catch (err) {
-      alert('Connection error: ' + err.message);
+      alert('Connection error');
     } finally {
       setForgotLoading(false);
     }
@@ -323,7 +321,7 @@ export default function App() {
 
   const handleForgotConfirm = async () => {
     if (!forgotOtp.trim() || !newPassword.trim()) {
-      alert('Please enter the 6-digit code and your new password.');
+      alert('Please enter OTP and new password.');
       return;
     }
     setForgotLoading(true);
@@ -341,17 +339,14 @@ export default function App() {
       const data = await res.json().catch(() => ({}));
 
       if (res.ok) {
-        alert(data.message || 'Password changed successfully! You can now log in.');
+        alert(data.message || 'Password changed successfully!');
         setShowForgotModal(false);
         setForgotStep(1);
-        setForgotIdentifier('');
-        setForgotOtp('');
-        setNewPassword('');
       } else {
-        alert(data.error || 'Invalid or expired OTP code.');
+        alert(data.error || 'Invalid code.');
       }
     } catch (err) {
-      alert('Connection error: ' + err.message);
+      alert('Connection error');
     } finally {
       setForgotLoading(false);
     }
@@ -363,14 +358,22 @@ export default function App() {
     setToken(null);
   };
 
+  const swapCities = () => {
+    setTripData({
+      ...tripData,
+      origin: tripData.destination,
+      destination: tripData.origin
+    });
+  };
+
   const selectDestination = (dest) => {
     setTripData({
       ...tripData,
       destination: dest.name,
       budget: (dest.avgBudgetPerPerson || 14000) * (tripData.groupSize || 2),
-      famousPlaces: dest.famousPlaces || [`${dest.name.split(',')[0]} Main Sight`, 'Historic Center', 'Scenic Viewpoint', 'Main Bazaar'],
-      treks: dest.treks || [`${dest.name.split(',')[0]} Nature Trek`, 'Sunset Hill View Trail', 'Historic Old Town Walk'],
-      famousFood: dest.famousFood || ['Signature Regional Thali', 'Authentic Local Street Delicacies', 'Famous Traditional Sweets']
+      famousPlaces: dest.famousPlaces || [`${dest.name.split(',')[0]} Main Sight`, 'Historic Center'],
+      treks: dest.treks || [`${dest.name.split(',')[0]} Nature Trek`],
+      famousFood: dest.famousFood || ['Signature Regional Thali']
     });
     setActiveTab('planner');
   };
@@ -385,7 +388,7 @@ export default function App() {
       status: statusType
     };
     setUserTrips([newTrip, ...userTrips]);
-    alert(`Trip to "${tripData.destination}" saved to Profile as ${statusType}! 🚀`);
+    alert(`Trip to "${tripData.destination}" saved to Profile!`);
   };
 
   const markTripDone = (id) => {
@@ -424,22 +427,9 @@ export default function App() {
           avgBudgetPerPerson: 13500,
           idealDays: '3-5 Days',
           bestTime: 'Oct - Mar',
-          famousPlaces: [`${searchQuery} Iconic Sights`, 'Ancient Heritage Corridor', 'Panoramic Sunset Viewpoint', 'Central Town Bazaar'],
-          treks: [`${searchQuery} Hill Ridge Trek`, 'Historic Heritage Walk', 'Lakeside / Nature Trail'],
-          famousFood: [`${searchQuery} Special Regional Thali`, 'Authentic Street Food Flavors', 'Traditional Local Sweets']
-        });
-      } else {
-        setOnlineResult({
-          id: Date.now(),
-          name: searchQuery.trim(),
-          region: 'India',
-          category: 'Custom Location',
-          avgBudgetPerPerson: 13000,
-          idealDays: '3-4 Days',
-          bestTime: 'Oct - Mar',
-          famousPlaces: [`${searchQuery} Historic Spots`, 'Famous Temples / Viewpoints', 'Bustling Local Markets'],
-          treks: [`${searchQuery} Nature Trail`, 'Sunset Peak Trail'],
-          famousFood: ['Authentic Regional Delicacies', 'Famous Street Snacks']
+          famousPlaces: [`${searchQuery} Iconic Sights`, 'Ancient Heritage Corridor'],
+          treks: [`${searchQuery} Hill Ridge Trek`],
+          famousFood: [`${searchQuery} Special Regional Thali`]
         });
       }
     } catch (err) {
@@ -453,9 +443,7 @@ export default function App() {
     { id: 1, name: 'Manali & Kasol, Himachal Pradesh', region: 'North', category: 'Mountains & Treks', avgBudgetPerPerson: 12000, idealDays: '4-5 Days', bestTime: 'Oct - Jun', famousPlaces: ['Solang Valley', 'Rohtang Pass', 'Hadimba Temple', 'Manikaran Sahib'], treks: ['Kheerganga Trek', 'Jogini Waterfall'], famousFood: ['Siddu', 'Trout Fish', 'Himachali Dham'] },
     { id: 2, name: 'Leh-Ladakh, UT', region: 'North', category: 'High Altitude & Passes', avgBudgetPerPerson: 28000, idealDays: '6-8 Days', bestTime: 'May - Sep', famousPlaces: ['Pangong Tso', 'Nubra Valley', 'Khardung La'], treks: ['Markha Valley Trek'], famousFood: ['Thukpa', 'Butter Tea'] },
     { id: 3, name: 'Jaipur, Udaipur & Jaisalmer, Rajasthan', region: 'North', category: 'Heritage & Desert Safari', avgBudgetPerPerson: 16000, idealDays: '5-6 Days', bestTime: 'Oct - Mar', famousPlaces: ['Amber Fort', 'Hawa Mahal', 'Lake Pichola'], treks: ['Nahargarh Sunrise Hike'], famousFood: ['Dal Baati Churma', 'Laal Maas'] },
-    { id: 4, name: 'Goa (North & South)', region: 'West', category: 'Beaches & Heritage', avgBudgetPerPerson: 15000, idealDays: '4-5 Days', bestTime: 'Nov - Feb', famousPlaces: ['Baga Beach', 'Dudhsagar Falls', 'Palolem'], treks: ['Dudhsagar Railway Trek'], famousFood: ['Goan Fish Curry', 'Bebinca'] },
-    { id: 5, name: 'Munnar & Alleppey, Kerala', region: 'South', category: 'Backwaters & Tea Hills', avgBudgetPerPerson: 18000, idealDays: '5-6 Days', bestTime: 'Sep - Mar', famousPlaces: ['Tea Gardens', 'Alleppey Houseboat'], treks: ['Anamudi Peak Trek'], famousFood: ['Kerala Sadhya', 'Appam'] },
-    { id: 6, name: 'Srinagar & Gulmarg, Kashmir', region: 'North', category: 'Snow Valleys', avgBudgetPerPerson: 22000, idealDays: '5-6 Days', bestTime: 'All Year', famousPlaces: ['Dal Lake Shikara', 'Gulmarg Gondola'], treks: ['Great Lakes Trek'], famousFood: ['Kashmiri Wazwan', 'Kahwa'] }
+    { id: 4, name: 'Goa (North & South)', region: 'West', category: 'Beaches & Heritage', avgBudgetPerPerson: 15000, idealDays: '4-5 Days', bestTime: 'Nov - Feb', famousPlaces: ['Baga Beach', 'Dudhsagar Falls', 'Palolem'], treks: ['Dudhsagar Railway Trek'], famousFood: ['Goan Fish Curry', 'Bebinca'] }
   ].filter(dest => {
     const matchesSearch = dest.name.toLowerCase().includes(searchQuery.toLowerCase()) || dest.famousPlaces.some(p => p.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesRegion = selectedRegion === 'All' || dest.region === selectedRegion;
@@ -471,53 +459,50 @@ export default function App() {
   const itineraryDays = Array.from({ length: tripData.days || 3 }, (_, i) => ({
     day: i + 1,
     title: `Day ${i + 1}: ${i === 0 ? 'Arrival & Orientation' : i === tripData.days - 1 ? 'Souvenirs & Departure' : 'Core Exploration & Adventure'}`,
-    morning: `Morning ${i === 0 ? `arrival at ${tripData.destination.split(',')[0]}, check-in & breakfast` : `visit to ${tripData.famousPlaces[i % tripData.famousPlaces.length]}`}`,
-    afternoon: `Afternoon ${i % 2 === 0 ? `trail walk on ${tripData.treks[i % tripData.treks.length]}` : `sightseeing around local heritage points`}`,
-    evening: `Evening cafe hopping and dinner tasting ${tripData.famousFood[i % tripData.famousFood.length]} at famous spots`
+    morning: `Morning ${i === 0 ? `arrival at ${tripData.destination.split(',')[0]}, check-in` : `visit to ${tripData.famousPlaces[i % tripData.famousPlaces.length]}`}`,
+    afternoon: `Afternoon ${i % 2 === 0 ? `trail walk on ${tripData.treks[i % tripData.treks.length]}` : `sightseeing`}`,
+    evening: `Evening cafe hopping and dinner tasting ${tripData.famousFood[i % tripData.famousFood.length]}`
   }));
 
   if (!token) {
     return (
-      <div className="min-h-screen bg-[#070B14] flex items-center justify-center p-4 text-slate-100 font-sans relative">
-        <div className="w-full max-w-md bg-[#0F172A] border border-slate-700/80 p-6 sm:p-8 rounded-3xl shadow-2xl">
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 text-slate-100 font-sans">
+        <div className="w-full max-w-md bg-slate-900 border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-2xl">
           <div className="flex flex-col items-center justify-center mb-6">
-            <img 
-              src="/logo.jpeg" 
-              alt="TripSync" 
-              className="w-28 h-28 rounded-2xl object-contain shadow-lg shadow-cyan-500/20"
-            />
+            <img src="/logo.jpeg" alt="TripSync" className="w-24 h-24 rounded-2xl object-contain shadow-lg mb-2" />
+            <h1 className="text-xl font-black text-white">TripSync India</h1>
           </div>
 
-          <h2 className="text-xl font-bold text-center mb-6 text-slate-100">
+          <h2 className="text-lg font-bold text-center mb-6 text-slate-200">
             {authMode === 'login' ? 'Sign In to Your Account' : 'Create an Account'}
           </h2>
 
           <form onSubmit={handleAuth} className="space-y-4">
             <div>
-              <label className="text-xs text-slate-300 font-bold uppercase">Username *</label>
+              <label className="text-xs text-slate-400 font-bold uppercase">Username</label>
               <input
                 type="text" required placeholder="Enter username"
                 value={authData.username}
                 onChange={(e) => setAuthData({ ...authData, username: e.target.value })}
-                className="w-full mt-1.5 bg-[#070B14] border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-400"
+                className="w-full mt-1.5 bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500"
               />
             </div>
 
             {authMode === 'register' && (
               <div>
-                <label className="text-xs text-slate-300 font-bold uppercase">Email Address *</label>
+                <label className="text-xs text-slate-400 font-bold uppercase">Email Address</label>
                 <input
                   type="email" required placeholder="name@example.com"
                   value={authData.email}
                   onChange={(e) => setAuthData({ ...authData, email: e.target.value })}
-                  className="w-full mt-1.5 bg-[#070B14] border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-400"
+                  className="w-full mt-1.5 bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500"
                 />
               </div>
             )}
 
             <div>
               <div className="flex justify-between items-center">
-                <label className="text-xs text-slate-300 font-bold uppercase">Password *</label>
+                <label className="text-xs text-slate-400 font-bold uppercase">Password</label>
                 {authMode === 'login' && (
                   <button
                     type="button"
@@ -525,10 +510,8 @@ export default function App() {
                       setShowForgotModal(true);
                       setForgotStep(1);
                       setForgotIdentifier(authData.username || '');
-                      setForgotOtp('');
-                      setNewPassword('');
                     }}
-                    className="text-[11px] text-cyan-400 hover:underline font-semibold"
+                    className="text-[11px] text-blue-400 hover:underline"
                   >
                     Forgot password?
                   </button>
@@ -540,12 +523,12 @@ export default function App() {
                   required placeholder="••••••••"
                   value={authData.password}
                   onChange={(e) => setAuthData({ ...authData, password: e.target.value })}
-                  className="w-full bg-[#070B14] border border-slate-700 rounded-xl px-4 py-3 pr-11 text-sm text-white focus:outline-none focus:border-cyan-400"
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 pr-11 text-sm focus:outline-none focus:border-blue-500"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-cyan-400"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400"
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -555,32 +538,21 @@ export default function App() {
             <button 
               type="submit" 
               disabled={isAuthLoading}
-              className="w-full mt-4 bg-gradient-to-r from-cyan-500 via-indigo-600 to-purple-600 text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center gap-2 disabled:opacity-60"
+              className="w-full mt-4 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center gap-2"
             >
               {isAuthLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-              {authMode === 'login' ? 'Sign In to TripSync' : 'Complete Registration'}
+              {authMode === 'login' ? 'Sign In' : 'Register'}
             </button>
           </form>
 
           {authMode === 'login' && (
             <div className="mt-5">
-              <div className="flex items-center my-3.5">
-                <div className="flex-1 border-t border-slate-700/80"></div>
-                <span className="px-3 text-[11px] text-slate-400 font-bold tracking-wider uppercase">Or sign in with</span>
-                <div className="flex-1 border-t border-slate-700/80"></div>
-              </div>
-
               <button
                 type="button"
-                onClick={() => {
-                  setShowOtpModal(true);
-                  setOtpStep(1);
-                  setOtpEmail('');
-                  setEnteredOtp('');
-                }}
-                className="w-full flex items-center justify-center gap-2 py-3 px-4 text-xs bg-slate-800/90 hover:bg-slate-700 border border-slate-700 rounded-xl text-slate-200 transition font-bold"
+                onClick={() => { setShowOtpModal(true); setOtpStep(1); }}
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-slate-200 transition font-bold"
               >
-                <Mail className="h-4 w-4 text-cyan-400" /> Sign In via Email
+                <Mail className="h-4 w-4 text-blue-400" /> Sign In via Email OTP
               </button>
             </div>
           )}
@@ -588,84 +560,41 @@ export default function App() {
           <div className="text-center mt-5">
             <button
               onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')}
-              className="text-xs font-semibold text-cyan-400 hover:underline"
+              className="text-xs font-semibold text-blue-400 hover:underline"
             >
-              {authMode === 'login' ? "Don't have an account? Register here" : 'Already registered? Log in'}
+              {authMode === 'login' ? "Don't have an account? Register" : 'Already registered? Log in'}
             </button>
           </div>
         </div>
 
-        {/* 🚀 Email OTP Sign-In Modal */}
+        {/* Email OTP Modal */}
         {showOtpModal && (
-          <div className="fixed inset-0 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-            <div className="bg-[#0F172A] border border-slate-700 rounded-3xl p-6 sm:p-7 w-full max-w-sm shadow-2xl space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-cyan-400 font-bold text-sm">
-                  <Mail className="h-4 w-4" />
-                  <span>Email Sign-In</span>
-                </div>
-                <button 
-                  onClick={() => setShowOtpModal(false)} 
-                  className="text-slate-400 hover:text-white text-xs font-bold px-2 py-1 bg-slate-800 rounded-lg"
-                >
-                  ✕
-                </button>
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-sm space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="font-bold text-sm text-blue-400 flex items-center gap-1.5"><Mail className="h-4 w-4" /> Email Sign-In</span>
+                <button onClick={() => setShowOtpModal(false)} className="text-slate-400 hover:text-white">✕</button>
               </div>
-
-              <p className="text-xs text-slate-400">
-                {otpStep === 1 
-                  ? "Enter your registered email address. We'll send a 6-digit verification code." 
-                  : `Enter the 6-digit verification code sent to ${otpEmail}.`}
-              </p>
-
               {otpStep === 1 ? (
                 <div className="space-y-3">
-                  <div>
-                    <label className="text-[11px] text-slate-300 font-bold uppercase">Email Address</label>
-                    <input
-                      type="email"
-                      placeholder="e.g. name@example.com"
-                      value={otpEmail}
-                      onChange={(e) => setOtpEmail(e.target.value)}
-                      className="w-full mt-1 bg-[#070B14] border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400"
-                    />
-                  </div>
-                  <button
-                    onClick={handleSendEmailOtp}
-                    disabled={otpLoading}
-                    className="w-full py-3 bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-lg disabled:opacity-60"
-                  >
-                    {otpLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                  <input
+                    type="email" placeholder="name@example.com"
+                    value={otpEmail} onChange={(e) => setOtpEmail(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm"
+                  />
+                  <button onClick={handleSendEmailOtp} disabled={otpLoading} className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold">
                     Send Verification Code
                   </button>
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <div>
-                    <label className="text-[11px] text-slate-300 font-bold uppercase">Enter 6-Digit Code</label>
-                    <input
-                      type="text"
-                      maxLength={6}
-                      placeholder="• • • • • •"
-                      value={enteredOtp}
-                      onChange={(e) => setEnteredOtp(e.target.value)}
-                      className="w-full mt-1 text-center tracking-[0.4em] font-mono text-lg bg-[#070B14] border border-cyan-500/60 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-400"
-                    />
-                  </div>
-                  <button
-                    onClick={handleVerifyEmailOtp}
-                    disabled={otpLoading}
-                    className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-lg disabled:opacity-60"
-                  >
-                    {otpLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                    Verify & Sign In →
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setOtpStep(1)}
-                    className="w-full text-center text-xs text-slate-400 hover:text-cyan-400 font-medium py-1"
-                  >
-                    ← Change Email Address
+                  <input
+                    type="text" maxLength={6} placeholder="• • • • • •"
+                    value={enteredOtp} onChange={(e) => setEnteredOtp(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-center text-lg tracking-[0.3em] font-mono"
+                  />
+                  <button onClick={handleVerifyEmailOtp} disabled={otpLoading} className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold">
+                    Verify & Sign In
                   </button>
                 </div>
               )}
@@ -673,87 +602,39 @@ export default function App() {
           </div>
         )}
 
-        {/* 🔑 Forgot Password Modal (Username or Email Address) */}
+        {/* Forgot Password Modal */}
         {showForgotModal && (
-          <div className="fixed inset-0 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-            <div className="bg-[#0F172A] border border-slate-700 rounded-3xl p-6 sm:p-7 w-full max-w-sm shadow-2xl space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-cyan-400 font-bold text-sm">
-                  <KeyRound className="h-4 w-4" />
-                  <span>Reset Password</span>
-                </div>
-                <button 
-                  onClick={() => setShowForgotModal(false)} 
-                  className="text-slate-400 hover:text-white text-xs font-bold px-2 py-1 bg-slate-800 rounded-lg"
-                >
-                  ✕
-                </button>
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-sm space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="font-bold text-sm text-blue-400 flex items-center gap-1.5"><KeyRound className="h-4 w-4" /> Reset Password</span>
+                <button onClick={() => setShowForgotModal(false)} className="text-slate-400 hover:text-white">✕</button>
               </div>
-
               {forgotStep === 1 ? (
                 <div className="space-y-3">
-                  <p className="text-xs text-slate-400">
-                    Enter your registered <strong>Username</strong> or <strong>Email address</strong>. We'll send a 6-digit reset code.
-                  </p>
-                  <div>
-                    <label className="text-[11px] text-slate-300 font-bold uppercase tracking-wider">Username or Email Address</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Aayan or name@example.com"
-                      value={forgotIdentifier}
-                      onChange={(e) => setForgotIdentifier(e.target.value)}
-                      className="w-full mt-1 bg-[#070B14] border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400"
-                    />
-                  </div>
-                  <button
-                    onClick={handleForgotRequest}
-                    disabled={forgotLoading}
-                    className="w-full py-3 bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-lg disabled:opacity-60"
-                  >
-                    {forgotLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                  <input
+                    type="text" placeholder="Username or Email"
+                    value={forgotIdentifier} onChange={(e) => setForgotIdentifier(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm"
+                  />
+                  <button onClick={handleForgotRequest} disabled={forgotLoading} className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold">
                     Send Reset Code
                   </button>
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <p className="text-xs text-slate-400">
-                    Code sent to <strong className="text-cyan-400">{forgotMaskedEmail}</strong>. Enter code & your new password:
-                  </p>
-                  <div>
-                    <label className="text-[11px] text-slate-300 font-bold uppercase">6-Digit Code</label>
-                    <input
-                      type="text"
-                      maxLength={6}
-                      placeholder="• • • • • •"
-                      value={forgotOtp}
-                      onChange={(e) => setForgotOtp(e.target.value)}
-                      className="w-full mt-1 text-center tracking-[0.4em] font-mono text-lg bg-[#070B14] border border-cyan-500/60 rounded-xl px-3.5 py-2 text-white focus:outline-none focus:border-cyan-400"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[11px] text-slate-300 font-bold uppercase">New Password</label>
-                    <input
-                      type="password"
-                      placeholder="Enter new password"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      className="w-full mt-1 bg-[#070B14] border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400"
-                    />
-                  </div>
-                  <button
-                    onClick={handleForgotConfirm}
-                    disabled={forgotLoading}
-                    className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-lg disabled:opacity-60"
-                  >
-                    {forgotLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                    Update Password & Save
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setForgotStep(1)}
-                    className="w-full text-center text-xs text-slate-400 hover:text-cyan-400 font-medium py-1"
-                  >
-                    ← Change Username / Email
+                  <input
+                    type="text" maxLength={6} placeholder="6-digit OTP"
+                    value={forgotOtp} onChange={(e) => setForgotOtp(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-center text-base"
+                  />
+                  <input
+                    type="password" placeholder="New Password"
+                    value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-sm"
+                  />
+                  <button onClick={handleForgotConfirm} disabled={forgotLoading} className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold">
+                    Update Password
                   </button>
                 </div>
               )}
@@ -764,157 +645,112 @@ export default function App() {
     );
   }
 
+  const navCards = [
+    { id: 'explore', label: 'Explore', icon: '🇮🇳', badge: 'Pan-India', badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/30' },
+    { id: 'planner', label: 'Planner', icon: '⚙️', badge: 'Smart Split', badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30' },
+    { id: 'itinerary', label: 'Itinerary', icon: '🗓️', badge: 'Day-Wise', badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' },
+    { id: 'hotels', label: `Stays (${tripData.destination.split(',')[0]})`, icon: '🏨', badge: 'Terrain AI', badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/30' },
+    { id: 'vehicles', label: 'Vehicles Fleet', icon: '🚙', badge: '4x4 & Bikes', badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/30' },
+    { id: 'expenses', label: 'Expenses', icon: '💰', badge: 'Auto-Split', badgeColor: 'bg-blue-500/20 text-blue-300 border-blue-500/30' },
+    { id: 'safety', label: 'Safety & Packing', icon: '🚨', badge: 'SOS 112', badgeColor: 'bg-orange-500/20 text-orange-300 border-orange-500/30' },
+  ];
+
   return (
-    <div className="min-h-screen bg-[#070B14] text-slate-100 font-sans antialiased w-full overflow-x-hidden">
-      <header className="border-b border-slate-800/80 bg-[#0E1526]/95 backdrop-blur-md sticky top-0 z-50">
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans antialiased w-full overflow-x-hidden">
+      {/* Top redBus-style Header with "My Account" Pill */}
+      <header className="border-b border-slate-800 bg-slate-900/90 backdrop-blur-md sticky top-0 z-50">
         <div className="w-full max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <img 
-              src="/logo.jpeg" 
-              alt="TripSync" 
-              className="h-9 w-9 rounded-lg object-contain border border-cyan-500/40 shadow-sm"
-            />
-            <span className="text-lg sm:text-xl font-extrabold tracking-tight bg-gradient-to-r from-cyan-400 via-indigo-200 to-purple-400 bg-clip-text text-transparent">
-              TripSync India
-            </span>
+          <div onClick={() => setActiveTab('planner')} className="flex items-center gap-2.5 cursor-pointer">
+            <img src="/logo.jpeg" alt="TripSync" className="h-8 w-8 rounded-lg object-contain" />
+            <span className="text-lg sm:text-xl font-bold tracking-tight text-white">TripSync India</span>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs bg-slate-800/80 border border-slate-700/60 px-2.5 py-1 rounded-lg text-slate-300 font-semibold">
-              👤 {currentUser}
-            </span>
-            <button onClick={handleLogout} className="p-2 text-slate-400 hover:text-red-400 bg-slate-800/50 rounded-xl transition" title="Logout">
+            <button
+              onClick={() => setActiveTab('profile')}
+              className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border font-semibold transition-all ${
+                activeTab === 'profile'
+                  ? 'bg-blue-600 text-white border-blue-500 shadow'
+                  : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+              }`}
+            >
+              <User className="h-3.5 w-3.5 text-blue-400" />
+              <span>{currentUser} • My Account</span>
+            </button>
+            <button onClick={handleLogout} className="p-2 text-slate-400 hover:text-red-400 bg-slate-800/80 rounded-xl transition">
               <LogOut className="h-4 w-4" />
             </button>
           </div>
         </div>
 
-        <div className="w-full overflow-x-auto scrollbar-none px-4 py-2 border-t border-slate-800/50 flex items-center gap-2">
-          {[
-            { id: 'explore', label: 'Explore 🇮🇳' },
-            { id: 'planner', label: 'Planner ⚙️' },
-            { id: 'itinerary', label: 'Itinerary 🗓️' },
-            { id: 'hotels', label: `Stays & Cafes (${tripData.destination.split(',')[0]})` },
-            { id: 'vehicles', label: 'Vehicles Fleet 🚙' },
-            { id: 'expenses', label: 'Expenses 💰' },
-            { id: 'safety', label: 'Safety & Packing 🚨' },
-            { id: 'profile', label: 'Profile 👤' },
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all shrink-0 ${
-                activeTab === tab.id
-                  ? 'bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-md shadow-cyan-500/20'
-                  : 'bg-slate-900/80 text-slate-400 border border-slate-800 hover:text-white'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        {/* 7 redBus-Style Category Navigation Cards */}
+        <div className="w-full max-w-7xl mx-auto px-4 py-3 border-t border-slate-800/80">
+          <div className="grid grid-cols-4 sm:grid-cols-7 gap-2.5">
+            {navCards.map(card => {
+              const isActive = activeTab === card.id;
+              return (
+                <button
+                  key={card.id}
+                  onClick={() => setActiveTab(card.id)}
+                  className={`relative pt-4 pb-2.5 px-2 rounded-2xl border flex flex-col items-center justify-center gap-1 transition-all ${
+                    isActive
+                      ? 'bg-slate-800 border-blue-500 shadow-lg shadow-blue-500/15 scale-[1.02]'
+                      : 'bg-slate-900 border-slate-800 hover:border-slate-700 hover:bg-slate-800/60'
+                  }`}
+                >
+                  <span className={`absolute -top-2 px-2 py-0.5 rounded-full text-[9px] font-extrabold border tracking-wide ${card.badgeColor}`}>
+                    {card.badge}
+                  </span>
+                  <span className="text-xl sm:text-2xl leading-none mt-0.5">{card.icon}</span>
+                  <span className={`text-[11px] font-bold text-center leading-tight line-clamp-1 ${isActive ? 'text-white' : 'text-slate-300'}`}>
+                    {card.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </header>
 
       <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-5 sm:py-8 space-y-6">
+        {/* EXPLORE TAB */}
         {activeTab === 'explore' && (
           <div className="space-y-5">
-            <div className="bg-[#0F172A] border border-slate-700/60 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-xl space-y-4">
-              <div>
-                <h1 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
-                  <Globe className="h-5 w-5 sm:h-6 sm:w-6 text-cyan-400" /> Pan-India Destination Search
-                </h1>
-                <p className="text-xs sm:text-sm text-slate-400 mt-1">
-                  Type <strong>ANY Indian place</strong> to instantly customize hotels, restaurants, vehicles & safety advisory!
-                </p>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-3">
-                <div className="relative flex-1 flex gap-2">
-                  <div className="relative flex-1">
-                    <Search className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input
-                      type="text"
-                      placeholder="Type ANY Indian place (e.g. Kedarnath, Ooty, Ayodhya, Pondicherry)..."
-                      value={searchQuery}
-                      onChange={(e) => {
-                        setSearchQuery(e.target.value);
-                        setOnlineResult(null);
-                      }}
-                      onKeyDown={(e) => e.key === 'Enter' && searchOnlineLocation()}
-                      className="w-full bg-[#070B14] border border-slate-700/80 pl-9 pr-4 py-2.5 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:border-cyan-400"
-                    />
-                  </div>
-                  <button
-                    onClick={searchOnlineLocation}
-                    disabled={isSearchingOnline || !searchQuery.trim()}
-                    className="px-4 py-2.5 bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 text-white font-bold text-xs rounded-xl shadow flex items-center gap-1.5 transition disabled:opacity-50"
-                  >
-                    {isSearchingOnline ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                    Search
-                  </button>
-                </div>
+            <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl space-y-4">
+              <h1 className="text-xl font-bold text-white flex items-center gap-2">
+                <Globe className="h-5 w-5 text-blue-400" /> Pan-India Destination Search
+              </h1>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Type any Indian place (e.g. Kedarnath, Ooty, Varanasi)..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-700 px-4 py-2.5 rounded-xl text-xs sm:text-sm"
+                />
+                <button onClick={searchOnlineLocation} className="px-4 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-bold">
+                  Search
+                </button>
               </div>
             </div>
 
-            {onlineResult && (
-              <div className="bg-gradient-to-r from-cyan-950/40 via-indigo-950/40 to-purple-950/40 border border-cyan-400/50 p-6 rounded-3xl shadow-2xl space-y-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full bg-cyan-400/20 text-cyan-300 border border-cyan-400/40">
-                      ⚡ Live Detected Destination
-                    </span>
-                    <h2 className="text-xl sm:text-2xl font-black text-white mt-2">{onlineResult.name}</h2>
-                  </div>
-                  <button
-                    onClick={() => selectDestination(onlineResult)}
-                    className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-indigo-600 text-white font-bold text-xs rounded-xl shadow-lg flex items-center gap-1"
-                  >
-                    <Sparkles className="h-3.5 w-3.5" /> Plan Now →
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredDestinations.map(dest => (
-                <div key={dest.id} className="bg-[#0F172A] border border-slate-800 hover:border-cyan-500/50 rounded-2xl sm:rounded-3xl p-5 sm:p-6 flex flex-col justify-between shadow-xl space-y-4 transition hover:-translate-y-1">
+                <div key={dest.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between space-y-4">
                   <div>
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-400/30">
-                        {dest.category}
-                      </span>
-                      <span className="text-xs text-slate-400 font-semibold">🗓️ {dest.idealDays}</span>
-                    </div>
-
-                    <h3 className="text-base sm:text-lg font-bold text-white mt-1">{dest.name}</h3>
-                    <div className="text-xs text-emerald-400 font-medium mt-1">Best Season: {dest.bestTime}</div>
-
-                    <div className="mt-4 space-y-3">
-                      <div>
-                        <div className="text-xs font-bold text-slate-300 flex items-center gap-1.5 mb-1.5">
-                          <MapPin className="h-3.5 w-3.5 text-cyan-400" /> Sights:
-                        </div>
-                        <div className="flex flex-wrap gap-1.5">
-                          {dest.famousPlaces.map((place, idx) => (
-                            <span key={idx} className="text-[11px] bg-[#070B14] border border-slate-800 px-2 py-0.5 rounded-md text-slate-300">
-                              {place}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
+                    <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-blue-950 text-blue-400 border border-blue-800">
+                      {dest.category}
+                    </span>
+                    <h3 className="text-base font-bold text-white mt-2">{dest.name}</h3>
+                    <div className="text-xs text-slate-400 mt-1">Best Season: {dest.bestTime}</div>
                   </div>
-
-                  <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
+                  <div className="pt-3 border-t border-slate-800 flex justify-between items-center">
                     <div>
-                      <div className="text-[10px] text-slate-400 uppercase font-semibold">Avg / Person</div>
-                      <div className="text-base sm:text-lg font-black text-white">₹{dest.avgBudgetPerPerson}</div>
+                      <div className="text-[10px] text-slate-400 uppercase">Avg / Person</div>
+                      <div className="text-base font-bold text-white">₹{dest.avgBudgetPerPerson}</div>
                     </div>
-                    <button
-                      onClick={() => selectDestination(dest)}
-                      className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-indigo-600 text-white rounded-xl text-xs font-bold flex items-center gap-1 shadow"
-                    >
-                      <Sparkles className="h-3.5 w-3.5" /> Plan Trip
+                    <button onClick={() => selectDestination(dest)} className="px-3.5 py-1.5 bg-blue-600 text-white rounded-xl text-xs font-bold">
+                      Plan Trip
                     </button>
                   </div>
                 </div>
@@ -923,102 +759,120 @@ export default function App() {
           </div>
         )}
 
+        {/* PLANNER TAB (redBus Stacked Route Card + Original Group Priority Voting Sliders) */}
         {activeTab === 'planner' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
-            <div className="bg-[#0F172A] border border-slate-700/60 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-xl space-y-4">
-              <h2 className="text-base sm:text-lg font-bold flex items-center gap-2 text-cyan-400">
-                <MapPin className="h-5 w-5" /> Trip Route Configuration
-              </h2>
-              <div className="space-y-3.5">
-                <div>
-                  <label className="text-xs text-slate-400 uppercase font-bold">Starting City</label>
-                  <input
-                    type="text" 
-                    value={tripData.origin}
-                    onChange={(e) => setTripData({ ...tripData, origin: e.target.value })}
-                    onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
-                    className="w-full mt-1.5 bg-[#070B14] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-slate-400 uppercase font-bold">Destination Selected</label>
-                  <input
-                    type="text" 
-                    value={tripData.destination}
-                    onChange={(e) => setTripData({ ...tripData, destination: e.target.value })}
-                    onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
-                    className="w-full mt-1.5 bg-[#070B14] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-slate-400 uppercase font-bold">Total Pool Budget (₹)</label>
-                  <input
-                    type="number" 
-                    inputMode="numeric"
-                    value={tripData.budget || ''}
-                    onChange={(e) => setTripData({ ...tripData, budget: Number(e.target.value) })}
-                    onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
-                    className="w-full mt-1.5 bg-[#070B14] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs text-slate-400 uppercase font-bold">Members</label>
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
+              {/* Top Banner Strip */}
+              <div className="bg-blue-600 px-5 py-2.5 flex items-center justify-between">
+                <span className="text-xs font-extrabold text-white tracking-wide">
+                  Smart Group Trip Planner • Instant Budget Sync
+                </span>
+                <Sparkles className="h-4 w-4 text-white" />
+              </div>
+
+              <div className="p-5 sm:p-6 space-y-4">
+                <h2 className="text-base font-bold flex items-center gap-2 text-blue-400">
+                  <MapPin className="h-5 w-5" /> Trip Route Configuration
+                </h2>
+
+                {/* Stacked From / To Box with Circular Swap Button */}
+                <div className="relative bg-slate-950 border border-slate-800 rounded-2xl divide-y divide-slate-800">
+                  <div className="p-3.5 pr-14">
+                    <label className="text-xs text-slate-400 uppercase font-bold block">FROM (STARTING CITY)</label>
                     <input
-                      type="number" 
-                      inputMode="numeric"
-                      value={tripData.groupSize || ''}
+                      type="text"
+                      value={tripData.origin}
+                      onChange={(e) => setTripData({ ...tripData, origin: e.target.value })}
+                      className="w-full mt-1 bg-transparent text-sm font-semibold text-white focus:outline-none"
+                    />
+                  </div>
+
+                  {/* Circular Swap Button */}
+                  <button
+                    type="button"
+                    onClick={swapCities}
+                    title="Swap Starting City & Destination"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-slate-800 hover:bg-blue-600 border border-slate-700 text-slate-200 hover:text-white flex items-center justify-center shadow-lg transition z-10"
+                  >
+                    <ArrowUpDown className="h-4 w-4" />
+                  </button>
+
+                  <div className="p-3.5 pr-14">
+                    <label className="text-xs text-slate-400 uppercase font-bold block">TO (DESTINATION SELECTED)</label>
+                    <input
+                      type="text"
+                      value={tripData.destination}
+                      onChange={(e) => setTripData({ ...tripData, destination: e.target.value })}
+                      className="w-full mt-1 bg-transparent text-sm font-semibold text-white focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Budget, Members & Days Row */}
+                <div className="grid grid-cols-3 gap-2.5">
+                  <div className="bg-slate-950 border border-slate-800 rounded-xl p-3">
+                    <label className="text-[10px] text-slate-400 uppercase font-bold block">POOL BUDGET (₹)</label>
+                    <input
+                      type="number"
+                      value={tripData.budget}
+                      onChange={(e) => setTripData({ ...tripData, budget: Number(e.target.value) })}
+                      className="w-full mt-1 bg-transparent text-sm font-bold text-blue-400 focus:outline-none"
+                    />
+                  </div>
+                  <div className="bg-slate-950 border border-slate-800 rounded-xl p-3">
+                    <label className="text-[10px] text-slate-400 uppercase font-bold block">MEMBERS</label>
+                    <input
+                      type="number"
+                      value={tripData.groupSize}
                       onChange={(e) => setTripData({ ...tripData, groupSize: Number(e.target.value) })}
-                      onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
-                      className="w-full mt-1.5 bg-[#070B14] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400"
+                      className="w-full mt-1 bg-transparent text-sm font-bold text-white focus:outline-none"
                     />
                   </div>
-                  <div>
-                    <label className="text-xs text-slate-400 uppercase font-bold">Days</label>
+                  <div className="bg-slate-950 border border-slate-800 rounded-xl p-3">
+                    <label className="text-[10px] text-slate-400 uppercase font-bold block">DAYS</label>
                     <input
-                      type="number" 
-                      inputMode="numeric"
-                      value={tripData.days || ''}
+                      type="number"
+                      value={tripData.days}
                       onChange={(e) => setTripData({ ...tripData, days: Number(e.target.value) })}
-                      onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
-                      className="w-full mt-1.5 bg-[#070B14] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400"
+                      className="w-full mt-1 bg-transparent text-sm font-bold text-white focus:outline-none"
                     />
                   </div>
                 </div>
+
+                {/* Rounded Pill CTA Button */}
+                <button
+                  onClick={() => setActiveTab('itinerary')}
+                  className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-full shadow-lg transition text-xs sm:text-sm"
+                >
+                  Generate Synchronized Itinerary →
+                </button>
               </div>
             </div>
 
-            <div 
-              className="lg:col-span-2 bg-[#0F172A] border border-slate-700/60 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-xl flex flex-col justify-between space-y-6"
-              onTouchStart={() => document.activeElement && document.activeElement.blur()}
-            >
+            <div className="lg:col-span-2 bg-slate-900 border border-slate-800 p-5 sm:p-6 rounded-2xl shadow-xl flex flex-col justify-between space-y-6">
               <div>
-                <h2 className="text-base sm:text-lg font-bold mb-1 flex items-center gap-2 text-cyan-400">
+                <h2 className="text-base font-bold mb-1 flex items-center gap-2 text-blue-400">
                   <Sliders className="h-5 w-5" /> Group Priority Voting Sliders
                 </h2>
-                <p className="text-xs sm:text-sm text-slate-400 mb-5">Dynamically split group budget by preference weights.</p>
+                <p className="text-xs text-slate-400 mb-5">Dynamically split group budget by preference weights.</p>
 
                 <div className="space-y-4">
                   {[
-                    { label: '🏛️ Sightseeing & Heritage', val: preferences.sightseeing, key: 'sightseeing', color: 'text-cyan-400', accent: 'accent-cyan-400' },
-                    { label: '🍲 Local Food & Dining', val: preferences.food, key: 'food', color: 'text-amber-400', accent: 'accent-amber-400' },
-                    { label: '🛋️ Scenic Stay & Relax', val: preferences.relax, key: 'relax', color: 'text-emerald-400', accent: 'accent-emerald-400' },
-                    { label: '🛍️ Shopping & Night Bazaars', val: preferences.street, key: 'street', color: 'text-purple-400', accent: 'accent-purple-400' }
+                    { label: 'Sightseeing & Heritage', val: preferences.sightseeing, key: 'sightseeing' },
+                    { label: 'Local Food & Dining', val: preferences.food, key: 'food' },
+                    { label: 'Scenic Stay & Relax', val: preferences.relax, key: 'relax' },
+                    { label: 'Shopping & Bazaars', val: preferences.street, key: 'street' }
                   ].map(s => (
-                    <div key={s.key} className="touch-pan-y">
-                      <div className="flex justify-between text-xs sm:text-sm mb-1.5 font-semibold">
+                    <div key={s.key}>
+                      <div className="flex justify-between text-xs mb-1 font-semibold">
                         <span>{s.label}</span>
-                        <span className={`${s.color} font-black`}>{s.val}%</span>
+                        <span className="text-blue-400 font-bold">{s.val}%</span>
                       </div>
                       <input
-                        type="range" 
-                        min="0" 
-                        max="100" 
-                        value={s.val}
-                        onTouchStart={() => document.activeElement && document.activeElement.blur()}
-                        onMouseDown={() => document.activeElement && document.activeElement.blur()}
+                        type="range" min="0" max="100" value={s.val}
                         onChange={(e) => setPreferences({ ...preferences, [s.key]: Number(e.target.value) })}
-                        className={`w-full ${s.accent} bg-slate-800 h-3 rounded-lg cursor-pointer`}
+                        className="w-full bg-slate-800 h-2 rounded-lg cursor-pointer"
                       />
                     </div>
                   ))}
@@ -1028,13 +882,13 @@ export default function App() {
               <div className="flex gap-2">
                 <button
                   onClick={() => saveCurrentTripToProfile('Planned')}
-                  className="flex-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold py-3.5 rounded-xl border border-cyan-500/30 transition flex items-center justify-center gap-1.5 text-xs sm:text-sm"
+                  className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3.5 rounded-xl border border-slate-700 transition text-xs"
                 >
-                  <BookmarkPlus className="h-4 w-4" /> Save to Profile
+                  Save to Profile
                 </button>
                 <button
                   onClick={() => setActiveTab('itinerary')}
-                  className="flex-2 bg-gradient-to-r from-cyan-500 via-indigo-600 to-purple-600 text-white font-bold py-3.5 rounded-xl sm:rounded-2xl shadow-lg transition active:scale-[0.98] text-xs sm:text-sm"
+                  className="flex-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl shadow transition text-xs px-5"
                 >
                   Generate Synchronized Itinerary →
                 </button>
@@ -1043,256 +897,121 @@ export default function App() {
           </div>
         )}
 
+        {/* ITINERARY TAB */}
         {activeTab === 'itinerary' && (
           <div className="space-y-6">
-            <div className="bg-[#0F172A] border border-slate-700/60 p-5 sm:p-6 rounded-2xl sm:rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
+            <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex justify-between items-center shadow-xl">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-400/30">
-                  🗺️ Synchronized Trip Dossier
+                <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-blue-950 text-blue-400 border border-blue-800">
+                  Itinerary Dossier
                 </span>
-                <h1 className="text-xl sm:text-2xl font-black text-white mt-1.5">{tripData.destination}</h1>
-                <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
-                  Route: <strong>{tripData.origin}</strong> ➔ <strong>{tripData.destination}</strong> • {tripData.days} Days • {tripData.groupSize} Members • ₹{tripData.budget} Total Pool
-                </p>
+                <h1 className="text-xl font-bold text-white mt-1">{tripData.destination}</h1>
+                <p className="text-xs text-slate-400 mt-0.5">Starting City: {tripData.origin} • {tripData.days} Days • ₹{tripData.budget} Budget Pool</p>
               </div>
-
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  onClick={() => saveCurrentTripToProfile('Planned')}
-                  className="px-3.5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow flex items-center gap-1.5"
-                >
-                  <BookmarkPlus className="h-4 w-4" /> Save Trip
-                </button>
-                <button
-                  onClick={() => window.print()}
-                  className="px-3.5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-xs font-bold rounded-xl shadow flex items-center gap-1.5"
-                >
-                  <FileDown className="h-4 w-4" /> Save PDF
-                </button>
-                <button
-                  onClick={() => setActiveTab('planner')}
-                  className="px-3.5 py-2.5 bg-slate-800 border border-slate-700 text-xs font-semibold rounded-xl text-slate-200"
-                >
-                  ← Edit Inputs
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-              <div className="bg-[#0F172A] border border-cyan-500/40 p-5 rounded-3xl shadow-xl space-y-3">
-                <div className="flex items-center gap-2 text-cyan-400 font-bold text-sm">
-                  <Camera className="h-4 w-4" /> Famous Attractions & Spots
-                </div>
-                <div className="space-y-2">
-                  {tripData.famousPlaces?.map((place, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-xs text-slate-200 bg-[#070B14] p-2.5 rounded-xl border border-slate-800">
-                      <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shrink-0"></span>
-                      <span>{place}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-[#0F172A] border border-emerald-500/40 p-5 rounded-3xl shadow-xl space-y-3">
-                <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
-                  <Footprints className="h-4 w-4" /> Famous Treks & Trails
-                </div>
-                <div className="space-y-2">
-                  {tripData.treks?.map((trek, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-xs text-slate-200 bg-[#070B14] p-2.5 rounded-xl border border-slate-800">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0"></span>
-                      <span>{trek}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-[#0F172A] border border-amber-500/40 p-5 rounded-3xl shadow-xl space-y-3">
-                <div className="flex items-center gap-2 text-amber-400 font-bold text-sm">
-                  <Utensils className="h-4 w-4" /> Must-Try Signature Food
-                </div>
-                <div className="space-y-2">
-                  {tripData.famousFood?.map((food, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-xs text-slate-200 bg-[#070B14] p-2.5 rounded-xl border border-slate-800">
-                      <span className="h-1.5 w-1.5 rounded-full bg-amber-400 shrink-0"></span>
-                      <span>{food}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-cyan-400" /> Day-by-Day Detailed Schedule
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {itineraryDays.map((d) => (
-                  <div key={d.day} className="bg-[#0F172A] border border-slate-800 rounded-2xl p-5 space-y-3 shadow-lg">
-                    <div className="text-sm font-bold text-cyan-400 flex items-center justify-between border-b border-slate-800 pb-2">
-                      <span>{d.title}</span>
-                      <span className="text-xs bg-cyan-950/60 border border-cyan-500/40 px-2 py-0.5 rounded-md">Day {d.day}</span>
-                    </div>
-                    <div className="space-y-2 text-xs text-slate-300">
-                      <div className="flex items-start gap-2">
-                        <Sun className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
-                        <div><strong className="text-slate-200">Morning:</strong> {d.morning}</div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <Sunset className="h-4 w-4 text-orange-400 shrink-0 mt-0.5" />
-                        <div><strong className="text-slate-200">Afternoon:</strong> {d.afternoon}</div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <Moon className="h-4 w-4 text-indigo-400 shrink-0 mt-0.5" />
-                        <div><strong className="text-slate-200">Evening:</strong> {d.evening}</div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-6">
-              <div className="bg-cyan-950/30 border border-cyan-500/30 p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow">
-                <div className="text-cyan-400 font-bold text-xs uppercase">Sightseeing Budget</div>
-                <div className="text-2xl sm:text-3xl font-black text-white mt-1">₹{sightseeingBudget}</div>
-              </div>
-              <div className="bg-amber-950/30 border border-amber-500/30 p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow">
-                <div className="text-amber-400 font-bold text-xs uppercase">Food & Dining Budget</div>
-                <div className="text-2xl sm:text-3xl font-black text-white mt-1">₹{foodBudget}</div>
-              </div>
-              <div className="bg-emerald-950/30 border border-emerald-500/30 p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow">
-                <div className="text-emerald-400 font-bold text-xs uppercase">Stay & Leisure</div>
-                <div className="text-2xl sm:text-3xl font-black text-white mt-1">₹{leisureBudget}</div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'hotels' && (
-          <div className="space-y-5">
-            <div className="bg-[#0F172A] border border-slate-700/60 p-5 rounded-2xl shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-              <div>
-                <span className="text-[10px] uppercase font-bold text-cyan-400 px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-400/30">
-                  Customized for {tripData.destination.split(',')[0]}
-                </span>
-                <h1 className="text-lg sm:text-xl font-bold text-white mt-1">Recommended Hotels, Resorts & Cafes</h1>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-              {currentIntelligence.stays.map(item => (
-                <div key={item.id} className="bg-[#0F172A] border border-slate-800 rounded-2xl p-5 flex flex-col justify-between shadow-xl space-y-3">
-                  <div>
-                    <div className="flex justify-between items-start mb-1">
-                      <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-400/30">
-                        {item.type}
-                      </span>
-                      <span className="text-xs font-bold text-amber-400">⭐ {item.rating}</span>
-                    </div>
-                    <h3 className="text-base font-bold text-white mt-1">{item.name}</h3>
-                    
-                    <div className="text-xs text-slate-300 bg-[#070B14] p-3 rounded-xl border border-slate-800 space-y-2 mt-2">
-                      <div><strong className="text-slate-400">Atmosphere & Vibe:</strong> <span className="text-slate-200">{item.vibe}</span></div>
-                      <div>
-                        <strong className="text-slate-400 block mb-1 flex items-center gap-1"><Coffee className="h-3 w-3 text-amber-400" /> Famous Top Cafes:</strong>
-                        <div className="flex flex-wrap gap-1">
-                          {item.cafes.map((c, i) => <span key={i} className="text-[11px] bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-slate-300">{c}</span>)}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
-                    <div>
-                      <div className="text-[10px] text-slate-400 uppercase">Tariff</div>
-                      <div className="text-xs sm:text-sm font-bold text-white">{item.price}</div>
-                    </div>
-                    <button onClick={() => alert(`Booking confirmed for ${item.name}!`)} className="px-3.5 py-1.5 bg-gradient-to-r from-cyan-500 to-indigo-600 text-white rounded-xl text-xs font-bold shadow">
-                      Book Stay
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'vehicles' && (
-          <div className="space-y-5">
-            <div className="bg-[#0F172A] border border-slate-700/60 p-5 rounded-2xl shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-              <div>
-                <span className="text-[10px] uppercase font-bold text-cyan-400 px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-400/30">
-                  Optimized Fleet for {tripData.destination.split(',')[0]}
-                </span>
-                <h1 className="text-lg sm:text-xl font-bold text-white mt-1">Recommended Vehicle Rentals</h1>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {currentIntelligence.vehicles.map(v => (
-                <div key={v.id} className="bg-[#0F172A] border border-slate-800 rounded-2xl p-5 flex flex-col justify-between shadow-xl space-y-3">
-                  <div>
-                    <div className="text-3xl mb-2">{v.icon}</div>
-                    <div className="flex justify-between items-start">
-                      <h3 className="text-sm sm:text-base font-bold text-white">{v.name}</h3>
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">{v.capacity}</span>
-                    </div>
-                    <div className="text-xs text-cyan-400 mt-0.5">{v.type}</div>
-                    <div className="mt-2 text-xs text-slate-300 bg-[#070B14] p-2.5 rounded-xl border border-slate-800 space-y-1">
-                      <div><strong className="text-slate-400">Best For:</strong> {v.bestFor}</div>
-                      <div><strong className="text-slate-400">Avg Mileage:</strong> {v.mileage}</div>
-                    </div>
-                  </div>
-                  <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
-                    <div className="text-sm font-bold text-white">₹{v.price}<span className="text-[10px] text-slate-400 font-normal">/day</span></div>
-                    <button onClick={() => alert(`Vehicle booked: ${v.name}`)} className="px-3.5 py-1.5 bg-cyan-500 text-slate-950 font-bold rounded-xl text-xs">
-                      Rent Vehicle
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'safety' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            <div className="bg-rose-950/20 border border-rose-900/50 p-5 sm:p-6 rounded-2xl shadow-xl flex flex-col justify-between space-y-4">
-              <div>
-                <span className="text-[10px] uppercase font-bold text-rose-400 px-2 py-0.5 rounded bg-rose-500/10 border border-rose-400/30">
-                  Regional Advisory: {tripData.destination.split(',')[0]}
-                </span>
-                <h2 className="text-base sm:text-lg font-black text-rose-400 flex items-center gap-2 mt-1 mb-2">
-                  <ShieldAlert className="h-5 w-5 text-rose-500" /> Emergency SOS & Area Advisory
-                </h2>
-                <div className="p-3.5 bg-[#070B14] border border-rose-900/40 rounded-xl space-y-2 text-xs">
-                  <div><strong className="text-rose-400">Active Destination:</strong> {tripData.destination}</div>
-                  <div><strong className="text-rose-400">Emergency Helpline:</strong> {currentIntelligence.safetyInfo.helpline}</div>
-                  <div className="text-slate-300 pt-1 border-t border-slate-800">
-                    <strong className="text-amber-400 block mb-1">⚠️ Safety Warning:</strong>
-                    {currentIntelligence.safetyInfo.primaryWarning}
-                  </div>
-                  <div className="pt-1">
-                    <strong className="text-slate-400 block mb-1">Key Precautions:</strong>
-                    <ul className="list-disc pl-4 text-slate-300 space-y-0.5">
-                      {currentIntelligence.safetyInfo.points.map((pt, i) => <li key={i}>{pt}</li>)}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              <button onClick={() => alert(`🚨 Emergency SOS Broadcast sent to Local Helpline: ${currentIntelligence.safetyInfo.helpline}!`)} className="w-full bg-gradient-to-r from-rose-600 to-red-600 text-white font-extrabold py-3 rounded-xl shadow-lg">
-                Trigger Emergency SOS
+              <button onClick={() => window.print()} className="px-3.5 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl shadow flex items-center gap-1.5">
+                <FileDown className="h-4 w-4" /> Save PDF
               </button>
             </div>
 
-            <div className="bg-[#0F172A] border border-slate-700/60 p-5 rounded-2xl shadow-xl space-y-3">
-              <h2 className="text-base font-bold text-cyan-400 flex items-center gap-2">
-                <CheckSquare className="h-5 w-5" /> Smart Packing Checklist
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {itineraryDays.map(d => (
+                <div key={d.day} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3 shadow">
+                  <div className="text-sm font-bold text-blue-400 flex justify-between border-b border-slate-800 pb-2">
+                    <span>{d.title}</span>
+                    <span className="text-xs bg-slate-800 px-2 py-0.5 rounded text-slate-300">Day {d.day}</span>
+                  </div>
+                  <div className="space-y-1.5 text-xs text-slate-300">
+                    <div><strong>Morning:</strong> {d.morning}</div>
+                    <div><strong>Afternoon:</strong> {d.afternoon}</div>
+                    <div><strong>Evening:</strong> {d.evening}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+                <div className="text-xs text-slate-400 font-bold uppercase">Sightseeing</div>
+                <div className="text-xl font-bold text-white mt-1">₹{sightseeingBudget}</div>
+              </div>
+              <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+                <div className="text-xs text-slate-400 font-bold uppercase">Food</div>
+                <div className="text-xl font-bold text-white mt-1">₹{foodBudget}</div>
+              </div>
+              <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+                <div className="text-xs text-slate-400 font-bold uppercase">Stay & Leisure</div>
+                <div className="text-xl font-bold text-white mt-1">₹{leisureBudget}</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* HOTELS & STAYS TAB */}
+        {activeTab === 'hotels' && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {currentIntelligence.stays.map(item => (
+              <div key={item.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between space-y-3">
+                <div>
+                  <div className="flex justify-between items-start">
+                    <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-blue-950 text-blue-400 border border-blue-800">{item.type}</span>
+                    <span className="text-xs text-amber-400 font-bold">⭐ {item.rating}</span>
+                  </div>
+                  <h3 className="text-base font-bold text-white mt-1">{item.name}</h3>
+                  <p className="text-xs text-slate-400 mt-2 bg-slate-950 p-2.5 rounded-xl border border-slate-800">{item.vibe}</p>
+                </div>
+                <div className="pt-2 border-t border-slate-800 flex justify-between items-center">
+                  <div className="text-xs font-bold text-white">{item.price}</div>
+                  <button onClick={() => alert(`Booked ${item.name}`)} className="px-3 py-1.5 bg-blue-600 text-white rounded-xl text-xs font-bold">Book</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* VEHICLES TAB */}
+        {activeTab === 'vehicles' && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {currentIntelligence.vehicles.map(v => (
+              <div key={v.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between space-y-3">
+                <div>
+                  <div className="text-3xl mb-1">{v.icon}</div>
+                  <h3 className="text-base font-bold text-white">{v.name}</h3>
+                  <div className="text-xs text-blue-400">{v.type} • {v.capacity}</div>
+                  <p className="text-xs text-slate-400 mt-2 bg-slate-950 p-2.5 rounded-xl border border-slate-800">Best for: {v.bestFor}</p>
+                </div>
+                <div className="pt-2 border-t border-slate-800 flex justify-between items-center">
+                  <div className="text-sm font-bold text-white">₹{v.price}/day</div>
+                  <button onClick={() => alert(`Rented ${v.name}`)} className="px-3 py-1.5 bg-blue-600 text-white rounded-xl text-xs font-bold">Rent</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* SAFETY TAB */}
+        {activeTab === 'safety' && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="bg-rose-950/20 border border-rose-900/50 p-5 rounded-2xl space-y-3">
+              <h2 className="text-base font-bold text-rose-400 flex items-center gap-2">
+                <ShieldAlert className="h-5 w-5" /> Emergency SOS Advisory
               </h2>
-              <div className="space-y-2.5 max-h-[320px] overflow-y-auto pr-1">
-                {packingList.map((item) => (
-                  <label key={item.id} className="flex items-center gap-3 p-3 bg-[#070B14] border border-slate-800 rounded-xl cursor-pointer text-xs">
-                    <input type="checkbox" checked={item.checked} onChange={() => togglePackingItem(item.id)} className="h-4 w-4 rounded accent-cyan-400" />
+              <div className="bg-slate-950 p-3 rounded-xl border border-rose-900/40 text-xs space-y-2">
+                <div><strong>Helpline:</strong> {currentIntelligence.safetyInfo.helpline}</div>
+                <div><strong>Warning:</strong> {currentIntelligence.safetyInfo.primaryWarning}</div>
+              </div>
+              <button onClick={() => alert('SOS Triggered!')} className="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 rounded-xl text-xs">
+                Emergency SOS Broadcast
+              </button>
+            </div>
+
+            <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-3">
+              <h2 className="text-base font-bold text-blue-400 flex items-center gap-2">
+                <CheckSquare className="h-5 w-5" /> Packing Checklist
+              </h2>
+              <div className="space-y-2">
+                {packingList.map(item => (
+                  <label key={item.id} className="flex items-center gap-3 p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs cursor-pointer">
+                    <input type="checkbox" checked={item.checked} onChange={() => togglePackingItem(item.id)} className="h-4 w-4" />
                     <span className={item.checked ? 'line-through text-slate-500' : 'text-slate-200'}>{item.text}</span>
                   </label>
                 ))}
@@ -1301,176 +1020,101 @@ export default function App() {
           </div>
         )}
 
+        {/* EXPENSES TAB */}
         {activeTab === 'expenses' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
-            <div className="bg-[#0F172A] border border-slate-700/60 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-xl">
-              <h2 className="text-base sm:text-lg font-bold mb-4 flex items-center gap-2 text-cyan-400">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-3">
+              <h2 className="text-base font-bold text-blue-400 flex items-center gap-2">
                 <PlusCircle className="h-5 w-5" /> Log Group Expense
               </h2>
-              <form onSubmit={addExpense} className="space-y-3.5">
-                <div>
-                  <label className="text-xs text-slate-400 uppercase font-bold">Expense Title</label>
-                  <input
-                    type="text" required placeholder="e.g., Fuel / Hotel / Dinner"
-                    value={newExpense.title}
-                    onChange={(e) => setNewExpense({ ...newExpense, title: e.target.value })}
-                    className="w-full mt-1 bg-[#070B14] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-slate-400 uppercase font-bold">Amount (₹)</label>
-                  <input
-                    type="number" required placeholder="0.00"
-                    value={newExpense.amount}
-                    onChange={(e) => setNewExpense({ ...newExpense, amount: e.target.value })}
-                    className="w-full mt-1 bg-[#070B14] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-slate-400 uppercase font-bold">Paid By</label>
-                  <input
-                    type="text" placeholder="Member name"
-                    value={newExpense.paid_by}
-                    onChange={(e) => setNewExpense({ ...newExpense, paid_by: e.target.value })}
-                    className="w-full mt-1 bg-[#070B14] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
-                <button type="submit" className="w-full bg-gradient-to-r from-cyan-500 to-indigo-600 text-white font-bold py-3 rounded-xl shadow transition">
-                  Save to Pool
+              <form onSubmit={addExpense} className="space-y-3">
+                <input
+                  type="text" required placeholder="Title"
+                  value={newExpense.title} onChange={(e) => setNewExpense({ ...newExpense, title: e.target.value })}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs"
+                />
+                <input
+                  type="number" required placeholder="Amount (₹)"
+                  value={newExpense.amount} onChange={(e) => setNewExpense({ ...newExpense, amount: e.target.value })}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs"
+                />
+                <input
+                  type="text" placeholder="Paid by"
+                  value={newExpense.paid_by} onChange={(e) => setNewExpense({ ...newExpense, paid_by: e.target.value })}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs"
+                />
+                <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl text-xs">
+                  Save Expense
                 </button>
               </form>
             </div>
 
-            <div className="lg:col-span-2 space-y-4">
-              <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                <div className="bg-[#0F172A] border border-slate-700/60 p-4 sm:p-6 rounded-2xl shadow">
-                  <div className="text-[10px] sm:text-xs text-slate-400 font-bold uppercase">Total Pool Spent</div>
-                  <div className="text-xl sm:text-3xl font-black text-white mt-1">₹{totalSpent}</div>
+            <div className="lg:col-span-2 space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+                  <div className="text-xs text-slate-400 uppercase font-bold">Total Spent</div>
+                  <div className="text-2xl font-bold text-white mt-1">₹{totalSpent}</div>
                 </div>
-                <div className="bg-[#0F172A] border border-slate-700/60 p-4 sm:p-6 rounded-2xl shadow">
-                  <div className="text-[10px] sm:text-xs text-slate-400 font-bold uppercase">Per Person Share</div>
-                  <div className="text-xl sm:text-3xl font-black text-cyan-400 mt-1">₹{perPersonExpense}</div>
+                <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+                  <div className="text-xs text-slate-400 uppercase font-bold">Per Person</div>
+                  <div className="text-2xl font-bold text-blue-400 mt-1">₹{perPersonExpense}</div>
                 </div>
               </div>
 
-              <div className="bg-[#0F172A] border border-slate-700/60 p-4 sm:p-6 rounded-2xl shadow-xl">
-                <h3 className="text-sm sm:text-base font-bold mb-3 text-white">Expense Ledger</h3>
-                <div className="space-y-2.5">
-                  {expenses.map((item) => (
-                    <div key={item.id} className="flex justify-between items-center p-3 bg-[#070B14] rounded-xl border border-slate-800">
-                      <div>
-                        <div className="font-bold text-xs sm:text-sm text-white">{item.title}</div>
-                        <div className="text-[10px] sm:text-xs text-slate-400">Paid by: {item.paid_by || 'Anonymous'}</div>
-                      </div>
-                      <div className="text-base sm:text-lg font-black text-emerald-400">₹{item.amount}</div>
+              <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-2">
+                {expenses.map(item => (
+                  <div key={item.id} className="flex justify-between items-center p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs">
+                    <div>
+                      <div className="font-bold text-white">{item.title}</div>
+                      <div className="text-slate-400">Paid by: {item.paid_by || 'Anonymous'}</div>
                     </div>
-                  ))}
-                </div>
+                    <div className="text-sm font-bold text-blue-400">₹{item.amount}</div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         )}
 
+        {/* PROFILE TAB */}
         {activeTab === 'profile' && (
-          <div className="space-y-5">
-            <div className="bg-[#0F172A] border border-slate-800 rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="space-y-4">
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-tr from-cyan-400 to-blue-600 flex items-center justify-center text-xl font-bold text-slate-950">
+                <div className="h-12 w-12 rounded-xl bg-blue-600 flex items-center justify-center text-xl font-bold text-white">
                   {currentUser.charAt(0).toUpperCase()}
                 </div>
                 <div>
                   <h2 className="text-base font-bold text-white">{currentUser}</h2>
-                  <p className="text-xs text-cyan-400">TripSync Explorer</p>
+                  <p className="text-xs text-blue-400">TripSync Explorer</p>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-2 w-full sm:w-auto text-center text-xs">
-                <div className="bg-[#070B14] border border-slate-800 px-3 py-2 rounded-xl">
-                  <span className="text-base font-bold text-cyan-400">{userTrips.length}</span>
-                  <p className="text-[9px] text-slate-400 uppercase">Trips</p>
-                </div>
-                <div className="bg-[#070B14] border border-slate-800 px-3 py-2 rounded-xl">
-                  <span className="text-base font-bold text-emerald-400">{userTrips.filter(t => t.status === 'Completed').length}</span>
-                  <p className="text-[9px] text-slate-400 uppercase">Done</p>
-                </div>
-                <div className="bg-[#070B14] border border-slate-800 px-3 py-2 rounded-xl">
-                  <span className="text-base font-bold text-amber-400">{userTrips.filter(t => t.status === 'Planned').length}</span>
-                  <p className="text-[9px] text-slate-400 uppercase">Planned</p>
-                </div>
+              <div className="text-xs bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800">
+                Total Trips: <strong className="text-blue-400">{userTrips.length}</strong>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-[#0F172A] border border-slate-800 rounded-2xl p-5 space-y-3 text-xs">
-                <h3 className="text-sm font-bold text-white">Edit Profile Info</h3>
-                <form onSubmit={(e) => { e.preventDefault(); alert('Profile info updated!'); }} className="space-y-3">
-                  <div>
-                    <label className="text-slate-400 block mb-1">Full Name</label>
-                    <input type="text" value={userProfile.name} onChange={(e)=>setUserProfile({...userProfile, name: e.target.value})} className="w-full bg-[#070B14] border border-slate-800 rounded-xl px-3 py-2 text-white outline-none focus:border-cyan-400" />
-                  </div>
-                  <div>
-                    <label className="text-slate-400 block mb-1">Email</label>
-                    <input type="email" value={userProfile.email} onChange={(e)=>setUserProfile({...userProfile, email: e.target.value})} className="w-full bg-[#070B14] border border-slate-800 rounded-xl px-3 py-2 text-white outline-none focus:border-cyan-400" />
-                  </div>
-                  <button type="submit" className="w-full py-2.5 bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 font-bold rounded-xl mt-1">
-                    Save Changes
-                  </button>
-                </form>
-              </div>
-
-              <div className="bg-[#0F172A] border border-slate-800 rounded-2xl p-5 space-y-3">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-sm font-bold text-white">Your Booked & Saved Trips</h3>
-                  <button
-                    onClick={() => setActiveTab('planner')}
-                    className="text-[10px] text-cyan-400 hover:underline flex items-center gap-1 font-bold"
-                  >
-                    + Plan New Trip
-                  </button>
-                </div>
-
-                <div className="space-y-2.5 max-h-[260px] overflow-y-auto pr-1">
-                  {userTrips.length === 0 ? (
-                    <div className="p-6 bg-[#070B14] border border-slate-800/80 rounded-2xl text-center space-y-2">
-                      <Calendar className="h-6 w-6 text-slate-500 mx-auto" />
-                      <p className="text-xs text-slate-400">No trips planned yet.</p>
-                      <button
-                        onClick={() => setActiveTab('planner')}
-                        className="px-3.5 py-1.5 bg-gradient-to-r from-cyan-500 to-indigo-600 text-white text-[11px] font-bold rounded-lg shadow"
-                      >
-                        Plan Your First Trip 🚀
-                      </button>
-                    </div>
-                  ) : (
-                    userTrips.map(t => (
-                      <div key={t.id} className="p-3 bg-[#070B14] border border-slate-800 rounded-xl flex items-center justify-between text-xs">
-                        <div>
-                          <div className="font-semibold text-white">{t.title}</div>
-                          <div className="text-[10px] text-slate-400">{t.location} • {t.date}</div>
-                          <div className="text-[10px] text-emerald-400 font-bold mt-0.5">{t.cost}</div>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            onClick={() => markTripDone(t.id)}
-                            className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${
-                              t.status === 'Completed' 
-                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' 
-                                : 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
-                            }`}
-                          >
-                            {t.status}
-                          </button>
-                          <button
-                            onClick={() => deleteTrip(t.id)}
-                            className="p-1 text-slate-500 hover:text-red-400 text-xs"
-                            title="Delete Trip"
-                          >
-                            ✕
-                          </button>
-                        </div>
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+              <h3 className="text-sm font-bold text-white">Saved Trips</h3>
+              <div className="space-y-2">
+                {userTrips.length === 0 ? (
+                  <p className="text-xs text-slate-400">No saved trips yet.</p>
+                ) : (
+                  userTrips.map(t => (
+                    <div key={t.id} className="p-3 bg-slate-950 border border-slate-800 rounded-xl flex justify-between items-center text-xs">
+                      <div>
+                        <div className="font-semibold text-white">{t.title}</div>
+                        <div className="text-slate-400">{t.location} • {t.cost}</div>
                       </div>
-                    ))
-                  )}
-                </div>
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => markTripDone(t.id)} className="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-blue-400">
+                          {t.status}
+                        </button>
+                        <button onClick={() => deleteTrip(t.id)} className="text-slate-500 hover:text-red-400">✕</button>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>
